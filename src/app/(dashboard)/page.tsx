@@ -40,8 +40,11 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = useState(false);
 
+  const [showWelcome, setShowWelcome] = useState(true);
+
   // Live Market Data
-  const { data: nseIndices, isLoading: indicesLoading } = useSWR('/api/market/nse-indices', fetcher, { refreshInterval: 60000 });
+  const symbolList = INDEX_SYMBOLS.map(s => s.symbol).join(",");
+  const { data: nseIndices, isLoading: indicesLoading } = useSWR(`/api/market/quotes?symbols=${symbolList}`, fetcher, { refreshInterval: 60000 });
   const { data: nseGainers, isLoading: gainersLoading } = useSWR('/api/market/nse-gainers', fetcher, { refreshInterval: 60000 });
 
   const liveDataRecord = Array.isArray(nseIndices) 
@@ -100,6 +103,33 @@ export default function Dashboard() {
       </div>
 
       <div className="flex flex-col gap-6">
+
+        {/* Welcome Banner */}
+        {showWelcome && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-accent/20 via-purple-500/10 to-blue-500/10 border border-accent/20 p-6 shadow-[0_0_40px_rgba(139,92,246,0.1)]"
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                  <Brain className="text-accent" /> Welcome to Alphaedge Terminal
+                </h2>
+                <p className="text-foreground-secondary text-[14px] max-w-2xl leading-relaxed">
+                  You are viewing an institutional-grade quant trading interface. Monitor live global markets (India, US, Crypto, Forex), analyze real-time flow, and leverage our AI agent for high-probability trade setups and technical analysis. Tap any symbol to open advanced TradingView charts.
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowWelcome(false)}
+                className="shrink-0 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors border border-white/10"
+              >
+                Dismiss
+              </button>
+            </div>
+          </motion.div>
+        )}
         
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -261,7 +291,7 @@ export default function Dashboard() {
                 <div className="text-[12px] text-foreground-muted p-2">No data available</div>
               ) : (
                 gainers.map((s: any) => (
-                  <div key={s.symbol} className="flex justify-between items-center py-1.5 border-b border-border/30 last:border-0 hover:bg-surface-hover/30 rounded px-1 -mx-1 transition-colors">
+                  <Link href={`/chart?symbol=${s.symbol}`} key={s.symbol} className="flex justify-between items-center py-1.5 border-b border-border/30 last:border-0 hover:bg-surface-hover/30 rounded px-1 -mx-1 transition-colors">
                     <div>
                       <div className="text-[12px] font-bold text-foreground truncate max-w-[80px] sm:max-w-[120px]" title={s.symbol}>{s.symbol}</div>
                       <div className="text-[10px] text-foreground-muted font-numeric">₹{s.price.toFixed(2)}</div>
@@ -269,7 +299,7 @@ export default function Dashboard() {
                     <div className="text-[11px] font-bold text-positive font-numeric bg-positive/10 px-1.5 py-0.5 rounded">
                       +{s.changePercent.toFixed(2)}%
                     </div>
-                  </div>
+                  </Link>
                 ))
               )}
             </div>
@@ -290,7 +320,7 @@ export default function Dashboard() {
                 <div className="text-[12px] text-foreground-muted p-2">No data available</div>
               ) : (
                 losers.map((s: any) => (
-                  <div key={s.symbol} className="flex justify-between items-center py-1.5 border-b border-border/30 last:border-0 hover:bg-surface-hover/30 rounded px-1 -mx-1 transition-colors">
+                  <Link href={`/chart?symbol=${s.symbol}`} key={s.symbol} className="flex justify-between items-center py-1.5 border-b border-border/30 last:border-0 hover:bg-surface-hover/30 rounded px-1 -mx-1 transition-colors">
                     <div>
                       <div className="text-[12px] font-bold text-foreground truncate max-w-[80px] sm:max-w-[120px]" title={s.symbol}>{s.symbol}</div>
                       <div className="text-[10px] text-foreground-muted font-numeric">₹{s.price.toFixed(2)}</div>
@@ -298,7 +328,7 @@ export default function Dashboard() {
                     <div className="text-[11px] font-bold text-negative font-numeric bg-negative/10 px-1.5 py-0.5 rounded">
                       {s.changePercent.toFixed(2)}%
                     </div>
-                  </div>
+                  </Link>
                 ))
               )}
             </div>

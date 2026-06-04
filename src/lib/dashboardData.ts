@@ -70,12 +70,12 @@ export interface TradeSuggestionResponse {
 // ── Index Symbols ──────────────────────────────────
 
 export const INDEX_SYMBOLS: IndexSymbol[] = [
-  { symbol: "NIFTY 50", name: "NIFTY 50", color: "#3B82F6" },
-  { symbol: "NIFTY BANK", name: "BANKNIFTY", color: "#F59E0B" },
-  { symbol: "NIFTY IT", name: "NIFTY IT", color: "#10B981" },
-  { symbol: "FINNIFTY", name: "FINNIFTY", color: "#8B5CF6" },
-  { symbol: "NIFTY NEXT 50", name: "NIFTY NEXT 50", color: "#EAB308" },
-  { symbol: "NIFTY MIDCAP 50", name: "NIFTY MID", color: "#EF4444" },
+  { symbol: "^NSEI", name: "NIFTY 50", color: "#3B82F6" },
+  { symbol: "AAPL", name: "Apple Inc.", color: "#8B5CF6" },
+  { symbol: "BINANCE:BTCUSDT", name: "Bitcoin", color: "#F59E0B" },
+  { symbol: "OANDA:EUR_USD", name: "EUR/USD", color: "#10B981" },
+  { symbol: "TSLA", name: "Tesla", color: "#EAB308" },
+  { symbol: "RELIANCE.NS", name: "Reliance", color: "#EF4444" },
 ];
 
 

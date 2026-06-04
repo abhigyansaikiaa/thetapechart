@@ -5,6 +5,7 @@ import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import { IndexSymbol, LiveIndexData, generateSparkline } from "@/lib/dashboardData";
 import { useMemo } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 interface IndexCardProps {
   sym: IndexSymbol;
@@ -22,7 +23,8 @@ export function IndexCard({ sym, data, delay = 0 }: IndexCardProps) {
   }, [data?.price]);
 
   return (
-    <motion.div
+    <Link href={`/chart?symbol=${sym.symbol}`}>
+      <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4, type: "spring", stiffness: 100 }}
@@ -104,6 +106,7 @@ export function IndexCard({ sym, data, delay = 0 }: IndexCardProps) {
           </div>
         )}
       </div>
-    </motion.div>
+      </motion.div>
+    </Link>
   );
 }

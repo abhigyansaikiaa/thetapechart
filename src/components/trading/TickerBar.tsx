@@ -1,5 +1,6 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { IndexSymbol, LiveIndexData } from "@/lib/dashboardData";
+import Link from "next/link";
 
 interface TickerBarProps {
   items: IndexSymbol[];
@@ -11,6 +12,7 @@ export function TickerBar({ items, liveData }: TickerBarProps) {
   const tickerItems = items.map((sym) => {
     const data = liveData[sym.symbol];
     return {
+      symbol: sym.symbol,
       name: sym.name,
       value: data?.price?.toLocaleString("en-IN", { maximumFractionDigits: 2, minimumFractionDigits: 2 }) || "...",
       pct: data?.changePercent || 0,
@@ -26,9 +28,10 @@ export function TickerBar({ items, liveData }: TickerBarProps) {
         {[...tickerItems, ...tickerItems].map((item, i) => {
           const isPositive = item.pct >= 0;
           return (
-            <span
+            <Link
+              href={`/chart?symbol=${item.symbol}`}
               key={`${item.name}-${i}`}
-              className="inline-flex gap-2 items-center text-xs group"
+              className="inline-flex gap-2 items-center text-xs group cursor-pointer hover:bg-surface-elevated px-2 py-1 rounded"
             >
               <span className="text-foreground-muted font-medium group-hover:text-foreground-secondary transition-colors">
                 {item.name}
@@ -46,7 +49,7 @@ export function TickerBar({ items, liveData }: TickerBarProps) {
                 {isPositive ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
                 {Math.abs(item.pct).toFixed(2)}%
               </span>
-            </span>
+            </Link>
           );
         })}
       </div>
