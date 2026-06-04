@@ -91,7 +91,7 @@ export default function OptionsChainPage() {
                 <div key={i} className={`flex-1 rounded-t-sm ${i < 5 ? "bg-negative" : "bg-positive"}`} style={{ height: `${val}%` }} />
               ))}
             </div>
-            <p className="text-[10px] text-foreground-muted mt-2 z-10 font-mono">Puts pricing > Calls</p>
+            <p className="text-[10px] text-foreground-muted mt-2 z-10 font-mono">Puts pricing &gt; Calls</p>
             <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent pointer-events-none" />
           </div>
         </motion.div>
