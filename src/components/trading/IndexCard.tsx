@@ -23,7 +23,7 @@ export function IndexCard({ sym, data, delay = 0 }: IndexCardProps) {
   }, [data?.price]);
 
   return (
-    <Link href={`/chart?symbol=${sym.symbol}`}>
+    <Link href={`/chart?s=${sym.symbol}`}>
       <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}

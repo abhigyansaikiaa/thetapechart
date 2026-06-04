@@ -29,7 +29,7 @@ export function TickerBar({ items, liveData }: TickerBarProps) {
           const isPositive = item.pct >= 0;
           return (
             <Link
-              href={`/chart?symbol=${item.symbol}`}
+              href={`/chart?s=${item.symbol}`}
               key={`${item.name}-${i}`}
               className="inline-flex gap-2 items-center text-xs group cursor-pointer hover:bg-surface-elevated px-2 py-1 rounded"
             >

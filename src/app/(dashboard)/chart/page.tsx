@@ -10,7 +10,7 @@ let tvScriptLoadingPromise: Promise<void> | null = null;
 
 export default function ChartPage() {
   const searchParams = useSearchParams();
-  const symbolParam = searchParams.get("symbol") || "BINANCE:BTCUSDT";
+  const symbolParam = searchParams.get("s") || searchParams.get("symbol") || "BINANCE:BTCUSDT";
 
   // TradingView sometimes requires specific exchange prefixes for best results
   // We clean up symbols from Yahoo Finance (e.g. ^NSEI -> NSE:NIFTY)

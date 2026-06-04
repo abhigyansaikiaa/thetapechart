@@ -291,7 +291,7 @@ export default function Dashboard() {
                 <div className="text-[12px] text-foreground-muted p-2">No data available</div>
               ) : (
                 gainers.map((s: any) => (
-                  <Link href={`/chart?symbol=${s.symbol}`} key={s.symbol} className="flex justify-between items-center py-1.5 border-b border-border/30 last:border-0 hover:bg-surface-hover/30 rounded px-1 -mx-1 transition-colors">
+                  <Link href={`/chart?s=${s.symbol}`} key={s.symbol} className="flex justify-between items-center py-1.5 border-b border-border/30 last:border-0 hover:bg-surface-hover/30 rounded px-1 -mx-1 transition-colors">
                     <div>
                       <div className="text-[12px] font-bold text-foreground truncate max-w-[80px] sm:max-w-[120px]" title={s.symbol}>{s.symbol}</div>
                       <div className="text-[10px] text-foreground-muted font-numeric">₹{s.price.toFixed(2)}</div>
@@ -320,7 +320,7 @@ export default function Dashboard() {
                 <div className="text-[12px] text-foreground-muted p-2">No data available</div>
               ) : (
                 losers.map((s: any) => (
-                  <Link href={`/chart?symbol=${s.symbol}`} key={s.symbol} className="flex justify-between items-center py-1.5 border-b border-border/30 last:border-0 hover:bg-surface-hover/30 rounded px-1 -mx-1 transition-colors">
+                  <Link href={`/chart?s=${s.symbol}`} key={s.symbol} className="flex justify-between items-center py-1.5 border-b border-border/30 last:border-0 hover:bg-surface-hover/30 rounded px-1 -mx-1 transition-colors">
                     <div>
                       <div className="text-[12px] font-bold text-foreground truncate max-w-[80px] sm:max-w-[120px]" title={s.symbol}>{s.symbol}</div>
                       <div className="text-[10px] text-foreground-muted font-numeric">₹{s.price.toFixed(2)}</div>
