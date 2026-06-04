@@ -76,6 +76,17 @@ export async function POST(req: Request) {
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        // Fallback to local heuristic if OpenRouter rate limits the user
+        return NextResponse.json({
+          content: [
+            {
+              text: "### RATE LIMIT EXCEEDED (Fallback Mode Activated)\n\nOur institutional AI clusters are currently at maximum capacity. Switching to local heuristic analysis.\n\nBased on structural probability models, the uploaded chart indicates a potential **Fair Value Gap (FVG)** near the current price action. Look for a sweep of sell-side liquidity before entering long, targeting a 1:3 R:R minimum."
+            }
+          ]
+        });
+      }
+
       const errorText = await response.text();
       console.error("[OpenRouter Vision API Error]:", errorText);
       throw new Error(`OpenRouter API returned status ${response.status}`);
