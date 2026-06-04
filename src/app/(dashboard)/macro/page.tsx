@@ -2,7 +2,7 @@
 import React from "react";
 
 import { PageWrapper } from "@/components/layout/PageWrapper";
-import { Globe, Calendar, Percent, BrainCircuit, Activity, LineChart, ShieldAlert } from "lucide-react";
+import { Globe, Calendar, Percent, BrainCircuit, Activity, LineChart, ShieldAlert, TrendingUp } from "lucide-react";
 import { MetricCard } from "@/components/trading/MetricCard";
 import { motion, Variants } from "framer-motion";
 
