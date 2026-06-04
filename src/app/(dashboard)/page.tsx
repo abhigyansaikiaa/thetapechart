@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Brain, RefreshCw, Zap, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { motion } from "framer-motion";
+import useSWR from "swr";
 
 // Components
 import { TickerBar } from "@/components/trading/TickerBar";
@@ -15,28 +16,40 @@ import { FiiDiiFlow } from "@/components/trading/FiiDiiFlow";
 import { EventsTimeline } from "@/components/trading/EventsTimeline";
 
 
-// Data Layer
 import {
   INDEX_SYMBOLS,
-  MOCK_LIVE_DATA,
-  MOCK_SUGGESTIONS,
   STATIC_SECTORS,
   FEAR_GREED_VALUE,
   getFearColor,
   getFearLabel,
   FII_DII,
   EVENTS,
-  GAINERS,
-  LOSERS,
   TradeSuggestionResponse
 } from "@/lib/dashboardData";
 import Link from "next/link";
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export default function Dashboard() {
   const [time, setTime] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [suggestions, setSuggestions] = useState<TradeSuggestionResponse>(MOCK_SUGGESTIONS);
+  const [suggestions, setSuggestions] = useState<TradeSuggestionResponse>({
+    market_bias: "Neutral",
+    market_summary: "Loading AI analysis...",
+    suggestions: []
+  });
   const [loading, setLoading] = useState(false);
+
+  // Live Market Data
+  const { data: nseIndices, isLoading: indicesLoading } = useSWR('/api/market/nse-indices', fetcher, { refreshInterval: 60000 });
+  const { data: nseGainers, isLoading: gainersLoading } = useSWR('/api/market/nse-gainers', fetcher, { refreshInterval: 60000 });
+
+  const liveDataRecord = Array.isArray(nseIndices) 
+    ? nseIndices.reduce((acc, item) => ({ ...acc, [item.symbol]: item }), {})
+    : {};
+    
+  const gainers = nseGainers?.gainers || [];
+  const losers = nseGainers?.losers || [];
 
   // Live IST Clock
   useEffect(() => {
@@ -83,7 +96,7 @@ export default function Dashboard() {
     <PageWrapper className="pb-8">
       {/* Top Ticker Marquee */}
       <div className="-mx-4 md:-mx-6 lg:-mx-8 -mt-6 mb-6 relative z-10">
-        <TickerBar items={INDEX_SYMBOLS} liveData={MOCK_LIVE_DATA} />
+        <TickerBar items={INDEX_SYMBOLS} liveData={liveDataRecord} />
       </div>
 
       <div className="flex flex-col gap-6">
@@ -131,7 +144,7 @@ export default function Dashboard() {
             <IndexCard
               key={sym.symbol}
               sym={sym}
-              data={MOCK_LIVE_DATA[sym.symbol]}
+              data={liveDataRecord[sym.symbol]}
               delay={i * 0.05}
             />
           ))}
@@ -242,17 +255,23 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="space-y-1">
-              {GAINERS.map((s) => (
-                <div key={s.symbol} className="flex justify-between items-center py-1.5 border-b border-border/30 last:border-0 hover:bg-surface-hover/30 rounded px-1 -mx-1 transition-colors">
-                  <div>
-                    <div className="text-[12px] font-bold text-foreground">{s.symbol}</div>
-                    <div className="text-[10px] text-foreground-muted font-numeric">₹{s.price.toFixed(2)}</div>
+              {gainersLoading ? (
+                <div className="text-[12px] text-foreground-muted p-2">Loading gainers...</div>
+              ) : gainers.length === 0 ? (
+                <div className="text-[12px] text-foreground-muted p-2">No data available</div>
+              ) : (
+                gainers.map((s: any) => (
+                  <div key={s.symbol} className="flex justify-between items-center py-1.5 border-b border-border/30 last:border-0 hover:bg-surface-hover/30 rounded px-1 -mx-1 transition-colors">
+                    <div>
+                      <div className="text-[12px] font-bold text-foreground truncate max-w-[80px] sm:max-w-[120px]" title={s.symbol}>{s.symbol}</div>
+                      <div className="text-[10px] text-foreground-muted font-numeric">₹{s.price.toFixed(2)}</div>
+                    </div>
+                    <div className="text-[11px] font-bold text-positive font-numeric bg-positive/10 px-1.5 py-0.5 rounded">
+                      +{s.changePercent.toFixed(2)}%
+                    </div>
                   </div>
-                  <div className="text-[11px] font-bold text-positive font-numeric bg-positive/10 px-1.5 py-0.5 rounded">
-                    +{s.change}%
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
@@ -265,17 +284,23 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="space-y-1">
-              {LOSERS.map((s) => (
-                <div key={s.symbol} className="flex justify-between items-center py-1.5 border-b border-border/30 last:border-0 hover:bg-surface-hover/30 rounded px-1 -mx-1 transition-colors">
-                  <div>
-                    <div className="text-[12px] font-bold text-foreground">{s.symbol}</div>
-                    <div className="text-[10px] text-foreground-muted font-numeric">₹{s.price.toFixed(2)}</div>
+              {gainersLoading ? (
+                <div className="text-[12px] text-foreground-muted p-2">Loading losers...</div>
+              ) : losers.length === 0 ? (
+                <div className="text-[12px] text-foreground-muted p-2">No data available</div>
+              ) : (
+                losers.map((s: any) => (
+                  <div key={s.symbol} className="flex justify-between items-center py-1.5 border-b border-border/30 last:border-0 hover:bg-surface-hover/30 rounded px-1 -mx-1 transition-colors">
+                    <div>
+                      <div className="text-[12px] font-bold text-foreground truncate max-w-[80px] sm:max-w-[120px]" title={s.symbol}>{s.symbol}</div>
+                      <div className="text-[10px] text-foreground-muted font-numeric">₹{s.price.toFixed(2)}</div>
+                    </div>
+                    <div className="text-[11px] font-bold text-negative font-numeric bg-negative/10 px-1.5 py-0.5 rounded">
+                      {s.changePercent.toFixed(2)}%
+                    </div>
                   </div>
-                  <div className="text-[11px] font-bold text-negative font-numeric bg-negative/10 px-1.5 py-0.5 rounded">
-                    {s.change}%
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 

@@ -70,24 +70,15 @@ export interface TradeSuggestionResponse {
 // ── Index Symbols ──────────────────────────────────
 
 export const INDEX_SYMBOLS: IndexSymbol[] = [
-  { symbol: "^NSEI", name: "NIFTY 50", color: "#3B82F6" },
-  { symbol: "^BSESN", name: "SENSEX", color: "#8B5CF6" },
-  { symbol: "^NSEBANK", name: "BANKNIFTY", color: "#F59E0B" },
-  { symbol: "^CNXIT", name: "NIFTY IT", color: "#10B981" },
-  { symbol: "GC=F", name: "Gold", color: "#EAB308" },
-  { symbol: "CL=F", name: "Crude Oil", color: "#EF4444" },
+  { symbol: "NIFTY 50", name: "NIFTY 50", color: "#3B82F6" },
+  { symbol: "NIFTY BANK", name: "BANKNIFTY", color: "#F59E0B" },
+  { symbol: "NIFTY IT", name: "NIFTY IT", color: "#10B981" },
+  { symbol: "FINNIFTY", name: "FINNIFTY", color: "#8B5CF6" },
+  { symbol: "NIFTY NEXT 50", name: "NIFTY NEXT 50", color: "#EAB308" },
+  { symbol: "NIFTY MIDCAP 50", name: "NIFTY MID", color: "#EF4444" },
 ];
 
-// ── Mock Live Data ─────────────────────────────────
 
-export const MOCK_LIVE_DATA: Record<string, LiveIndexData> = {
-  "^NSEI": { symbol: "^NSEI", price: 24856.75, change: 187.30, changePercent: 0.76 },
-  "^BSESN": { symbol: "^BSESN", price: 81742.50, change: 542.15, changePercent: 0.67 },
-  "^NSEBANK": { symbol: "^NSEBANK", price: 53412.00, change: -245.80, changePercent: -0.46 },
-  "^CNXIT": { symbol: "^CNXIT", price: 38920.45, change: 312.60, changePercent: 0.81 },
-  "GC=F": { symbol: "GC=F", price: 2648.30, change: 18.40, changePercent: 0.70 },
-  "CL=F": { symbol: "CL=F", price: 78.54, change: -1.23, changePercent: -1.54 },
-};
 
 // ── Sector Data ────────────────────────────────────
 
@@ -114,23 +105,7 @@ export const FII_DII: FiiDiiDay[] = [
   { date: "Fri", fii: 1892, dii: 654 },
 ];
 
-// ── Top Gainers / Losers ──────────────────────────
 
-export const GAINERS: GainerLoser[] = [
-  { symbol: "HDFCLIFE", price: 743.50, change: 4.82 },
-  { symbol: "SBILIFE", price: 1542.30, change: 3.91 },
-  { symbol: "TATAMOTORS", price: 987.65, change: 3.45 },
-  { symbol: "JSWSTEEL", price: 921.10, change: 2.98 },
-  { symbol: "TECHM", price: 1832.45, change: 2.73 },
-];
-
-export const LOSERS: GainerLoser[] = [
-  { symbol: "ONGC", price: 234.70, change: -2.84 },
-  { symbol: "COALINDIA", price: 451.25, change: -2.31 },
-  { symbol: "NTPC", price: 362.80, change: -1.94 },
-  { symbol: "POWERGRID", price: 312.40, change: -1.72 },
-  { symbol: "GAIL", price: 198.35, change: -1.58 },
-];
 
 // ── Events ────────────────────────────────────────
 
