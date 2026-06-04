@@ -1,9 +1,4 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
-
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY || 'placeholder',
-});
 
 const VISION_SYSTEM_PROMPT = `
 You are an institutional Quant and elite Smart Money Concept (SMC) analyst.
@@ -21,7 +16,9 @@ export async function POST(req: Request) {
   try {
     const { imageBase64, filename } = await req.json();
 
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.includes('placeholder')) {
+    const apiKey = process.env.OPENAI_API_KEY;
+
+    if (!apiKey || apiKey.includes('placeholder')) {
       // Mock heuristic: attempt to detect if it's a chart locally since we don't have Vision AI
       const name = (filename || "").toLowerCase();
       const invalidKeywords = ["car", "dog", "cat", "selfie", "person", "food", "meme", "photo", "terms", "condition", "text", "document"];
@@ -40,31 +37,54 @@ export async function POST(req: Request) {
       });
     }
 
-    // Extract base64 and mime type
-    const base64Data = imageBase64.split(',')[1] || imageBase64;
-    const mimeType = imageBase64.split(';')[0].split(':')[1] || 'image/jpeg';
+    // Prepare Base64 Image string for OpenAI
+    let base64Data = imageBase64;
+    if (!imageBase64.startsWith("data:image")) {
+       base64Data = `data:image/jpeg;base64,${imageBase64}`;
+    }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: [
-        { 
-          role: 'user', 
-          parts: [
-            { text: `SYSTEM INSTRUCTION: ${VISION_SYSTEM_PROMPT}\n\nAnalyze this chart based on SMC principles. Give me the directional bias, key liquidity levels, and an actionable trade plan.` },
-            { 
-              inlineData: {
-                data: base64Data,
-                mimeType: mimeType
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `${VISION_SYSTEM_PROMPT}\n\nAnalyze this chart based on SMC principles. Give me the directional bias, key liquidity levels, and an actionable trade plan.`
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: base64Data
+                }
               }
-            }
-          ] 
-        }
-      ]
+            ]
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 800
+      })
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[OpenAI Vision API Error]:", errorText);
+      throw new Error(`OpenAI API returned status ${response.status}`);
+    }
+
+    const data = await response.json();
+    const replyText = data.choices[0].message.content;
 
     return NextResponse.json({
       content: [
-        { text: response.text }
+        { text: replyText }
       ]
     });
   } catch (error: any) {
