@@ -15,8 +15,9 @@ export default function ChartPage() {
   // TradingView sometimes requires specific exchange prefixes for best results
   // We clean up symbols from Yahoo Finance (e.g. ^NSEI -> NSE:NIFTY)
   const formatSymbolForTV = (sym: string) => {
-    if (sym === "^NSEI" || sym === "NIFTY 50") return "NSE:NIFTY";
-    if (sym === "^NSEBANK" || sym === "NIFTY BANK") return "NSE:BANKNIFTY";
+    if (!sym) return "BINANCE:BTCUSDT";
+    if (sym === "^NSEI" || sym === "NSEI" || sym === "NIFTY 50") return "NSE:NIFTY";
+    if (sym === "^NSEBANK" || sym === "NSEBANK" || sym === "NIFTY BANK") return "NSE:BANKNIFTY";
     if (sym === "FINNIFTY") return "NSE:FINNIFTY";
     if (sym.endsWith(".NS")) return `NSE:${sym.replace(".NS", "")}`;
     if (sym.endsWith(".BO")) return `BSE:${sym.replace(".BO", "")}`;

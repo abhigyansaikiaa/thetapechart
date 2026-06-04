@@ -41,7 +41,9 @@ const isPublicRoute = createRouteMatcher([
   "/privacy",
   "/terms",
   "/disclaimer",
-  "/api/webhook/razorpay"
+  "/chart",
+  "/api/webhook/razorpay",
+  "/api/market/(.*)"
 ]);
 
 const isClerkEnabled = 

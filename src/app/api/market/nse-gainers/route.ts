@@ -1,40 +1,38 @@
 import { NextResponse } from 'next/server';
-import { NseIndia } from 'stock-nse-india';
+import YahooFinance from 'yahoo-finance2';
 
-const nse = new NseIndia();
+const yahooFinance = new YahooFinance();
 
 export const revalidate = 60; // 60-second cache
 
+// A mix of global and Indian heavyweights to find top gainers/losers
+const WATCHLIST = [
+  "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "INFY.NS", "ICICIBANK.NS", 
+  "SBIN.NS", "BHARTIARTL.NS", "ITC.NS", "LARSEN.NS", "KOTAKBANK.NS",
+  "AAPL", "MSFT", "NVDA", "TSLA", "META", "AMZN", "GOOGL", "AMD"
+];
+
 export async function GET() {
   try {
-    // getEquityStockIndices returns the index details along with an array of all its constituents in `data`
-    const indexData = await nse.getEquityStockIndices("NIFTY 50");
-    
-    const stocks = indexData?.data || [];
-    
-    // Filter out the index itself (usually has a symbol "NIFTY 50")
-    const constituents = stocks.filter((s: any) => s.symbol !== "NIFTY 50");
+    const yfResults = await yahooFinance.quote(WATCHLIST);
+    const quotes = Array.isArray(yfResults) ? yfResults : [yfResults];
+
+    const constituents = quotes.map((q: any) => ({
+      symbol: q.symbol,
+      name: q.shortName || q.symbol,
+      price: q.regularMarketPrice || 0,
+      change: q.regularMarketChange || 0,
+      changePercent: q.regularMarketChangePercent || 0
+    }));
 
     // Sort by percentChange
-    const sorted = constituents.sort((a: any, b: any) => b.pChange - a.pChange);
+    const sorted = constituents.sort((a, b) => b.changePercent - a.changePercent);
 
     // Top 5 Gainers
-    const gainers = sorted.slice(0, 5).map((s: any) => ({
-      symbol: s.symbol,
-      name: s.symbol,
-      price: s.lastPrice,
-      change: s.change,
-      changePercent: s.pChange
-    }));
+    const gainers = sorted.slice(0, 5);
 
     // Top 5 Losers
-    const losers = sorted.slice(-5).reverse().map((s: any) => ({
-      symbol: s.symbol,
-      name: s.symbol,
-      price: s.lastPrice,
-      change: s.change,
-      changePercent: s.pChange
-    }));
+    const losers = sorted.slice(-5).reverse();
 
     return NextResponse.json({ gainers, losers }, {
       headers: {
@@ -42,7 +40,7 @@ export async function GET() {
       }
     });
   } catch (error) {
-    console.error("Failed to fetch NSE gainers/losers:", error);
+    console.error("Failed to fetch gainers/losers:", error);
     return NextResponse.json(
       { error: "Failed to fetch gainers/losers data" }, 
       { status: 500 }
