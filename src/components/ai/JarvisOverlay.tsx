@@ -72,7 +72,7 @@ export function JarvisOverlay() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [{ role: "user", content: `You are Jarvis. Keep your response to a STRICT MAXIMUM of 1 or 2 short sentences. Be extremely brief, friendly, sound like a natural human, avoid AI buzzwords, and give creative stock recommendations. The user says: ${query}` }]
+          messages: [{ role: "user", content: `You are Jarvis, the Tape Chart bot. Keep your response to a STRICT MAXIMUM of 1 or 2 short sentences. Be extremely brief, friendly, sound like a natural human, avoid AI buzzwords, and only answer questions related to trading, finance, and stock markets. If the user asks something unrelated, playfully remind them you only talk about trading. The user says: ${query}` }]
         })
       });
 
@@ -124,8 +124,36 @@ export function JarvisOverlay() {
     }
   };
 
+  const playGreeting = () => {
+    if (synthRef.current) {
+      setIsSpeaking(true);
+      const greeting = "Hi, I'm the Tape Chart bot. How can I help you with your trading?";
+      setResponse(greeting);
+      const utterance = new SpeechSynthesisUtterance(greeting);
+      utterance.pitch = 0.9;
+      utterance.rate = 1.05;
+      
+      const voices = synthRef.current.getVoices();
+      const jarvisVoice = voices.find(v => v.name.includes("Google UK English Male") || v.lang === "en-GB");
+      if (jarvisVoice) utterance.voice = jarvisVoice;
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        // Start listening after greeting ends, unless manually stopped
+        if (recognitionRef.current && !isManuallyStoppedRef.current) {
+          try {
+            recognitionRef.current.start();
+            setIsListening(true);
+          } catch(e) {}
+        }
+      };
+      
+      synthRef.current.speak(utterance);
+    }
+  };
+
   const toggleListening = async () => {
-    if (isListening || isSpeaking) {
+    if (isListening) {
       isManuallyStoppedRef.current = true;
       recognitionRef.current?.stop();
       if (synthRef.current?.speaking) synthRef.current.cancel();
@@ -136,6 +164,20 @@ export function JarvisOverlay() {
       // Clear text box
       if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
       setTimeout(clearText, 300);
+      return;
+    } else if (isSpeaking && !isListening) {
+      // INTERRUPT JARVIS: Cancel speech and immediately start listening
+      if (synthRef.current?.speaking) synthRef.current.cancel();
+      setIsSpeaking(false);
+      setResponse("Listening...");
+      
+      isManuallyStoppedRef.current = false;
+      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+      
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch(e) {}
       return;
     } else {
       isManuallyStoppedRef.current = false;
@@ -150,8 +192,8 @@ export function JarvisOverlay() {
 
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true });
-        recognitionRef.current.start();
-        setIsListening(true);
+        // Play greeting first, which will auto-start mic when done
+        playGreeting();
       } catch (e: any) {
         console.error("Failed to start mic:", e);
         if (e.name === "NotFoundError" || e.message.includes("Requested device not found")) {
