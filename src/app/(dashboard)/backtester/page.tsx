@@ -257,7 +257,7 @@ export default function BacktesterPage() {
                       <YAxis stroke="#666" fontSize={10} domain={['auto', 'auto']} tickFormatter={(val) => `$${(val/1000).toFixed(1)}k`} />
                       <Tooltip 
                         contentStyle={{ backgroundColor: '#111113', borderColor: '#333', color: '#fff' }}
-                        formatter={(value: number) => [new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value), 'Equity']}
+                        formatter={(value: any) => [new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0), 'Equity']}
                       />
                       <Line type="monotone" dataKey="equity" stroke="#22c55e" strokeWidth={2} dot={false} />
                     </RechartsLineChart>
