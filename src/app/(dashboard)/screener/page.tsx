@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { PageWrapper } from "@/components/layout/PageWrapper";
-import { Filter, Download, SlidersHorizontal, ChevronDown, Workflow, Loader2, Play, Pause, Activity, Zap } from "lucide-react";
-import { motion, Variants, AnimatePresence } from "framer-motion";
+import { Workflow, Calculator, ShieldCheck, Target, ArrowRight, AlertTriangle } from "lucide-react";
+import { motion, Variants } from "framer-motion";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -18,61 +18,26 @@ const item: Variants = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
-// Live Data API not connected yet
-const INITIAL_RESULTS: any[] = [];
-
-const SCAN_LOGS_POOL = [
-  "Parsing Order Book Depth for NIFTY50 components...",
-  "Applying Smart Money Concept (SMC) filters...",
-  "Searching for Unmitigated FVGs on Daily timeframe...",
-  "Calculating Alpha Score based on Momentum & Volatility...",
-  "Filtering out stocks with Debt/Equity > 1.5...",
-  "Running ROE & ROCE comparative matrix...",
-  "Checking Dark Pool liquidity anomalies...",
-  "Cross-referencing Options Chain for Put-Call anomalies...",
-];
-
 export default function ScreenerPage() {
-  const [activeTab, setActiveTab] = useState("Fundamental");
-  const [isScanning, setIsScanning] = useState(false);
-  const [results, setResults] = useState<any[]>(INITIAL_RESULTS);
-  const [scanLogs, setScanLogs] = useState<string[]>(["System Idle. Ready for parameters."]);
-  const logRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isScanning) return;
-    
-    let index = 0;
-    setScanLogs(["[INIT] Booting Algorithmic Screener Engine..."]);
-    setResults([]);
-
-    const logInterval = setInterval(() => {
-      setScanLogs(prev => {
-        const newLogs = [...prev, `[SCAN] ${SCAN_LOGS_POOL[index % SCAN_LOGS_POOL.length]}`];
-        if (newLogs.length > 8) newLogs.shift();
-        return newLogs;
-      });
-      index++;
-    }, 800);
-
-    const resultTimeout = setTimeout(() => {
-      setIsScanning(false);
-      setScanLogs(prev => [...prev, "[SYSTEM] Scan complete. Live API data connection required."]);
-      setResults([]); // No live data available
-    }, 5000);
-
-    return () => {
-      clearInterval(logInterval);
-      clearTimeout(resultTimeout);
-    };
-  }, [isScanning]);
-
-  // Auto-scroll logs
-  useEffect(() => {
-    if (logRef.current) {
-      logRef.current.scrollTop = logRef.current.scrollHeight;
-    }
-  }, [scanLogs]);
+  const [capital, setCapital] = useState<number>(100000);
+  const [riskPercent, setRiskPercent] = useState<number>(1);
+  const [entryPrice, setEntryPrice] = useState<number>(150.00);
+  const [stopLoss, setStopLoss] = useState<number>(145.00);
+  
+  // Calculations
+  const riskAmount = (capital * riskPercent) / 100;
+  const riskPerShare = Math.max(0.01, entryPrice - stopLoss); // Prevent div by 0
+  
+  // Only calculate if SL is below Entry (for long position)
+  const isInvalidLong = stopLoss >= entryPrice;
+  const sharesToBuy = isInvalidLong ? 0 : Math.floor(riskAmount / riskPerShare);
+  
+  const totalPositionSize = sharesToBuy * entryPrice;
+  const leverageRequired = totalPositionSize > capital ? (totalPositionSize / capital).toFixed(2) + "x" : "None";
+  
+  const rr1Target = entryPrice + (riskPerShare * 1);
+  const rr2Target = entryPrice + (riskPerShare * 2);
+  const rr3Target = entryPrice + (riskPerShare * 3);
 
   return (
     <PageWrapper>
@@ -80,245 +45,169 @@ export default function ScreenerPage() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="flex flex-col gap-6 max-w-7xl mx-auto"
+        className="flex flex-col gap-6 max-w-5xl mx-auto"
       >
         
         {/* Header */}
         <motion.div variants={item} className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-border/50 pb-6">
           <div>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-[10px] font-bold font-mono text-warning uppercase tracking-widest bg-warning/10 px-2 py-0.5 rounded border border-warning/20">
+                Live Screener Offline
+              </span>
+            </div>
             <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3 font-sans">
               <div className="p-2 bg-accent/10 rounded-lg border border-accent/20">
                 <Workflow className="text-accent" size={28} />
               </div>
-              Quantitative Screener
+              Position Sizing Terminal
             </h1>
             <p className="text-foreground-secondary text-sm max-w-2xl font-mono">
-              Execute institutional-grade filters across Fundamental, Technical, and Dark Pool parameters to isolate market anomalies.
+              While the live quantitative screener API is disconnected, use this institutional-grade risk management calculator to perfectly size your trades and eliminate emotional drawdowns.
             </p>
-          </div>
-          <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-surface-elevated hover:bg-surface-hover border border-border rounded-md text-sm font-medium transition-colors">
-              <Download size={16} /> Export CSV
-            </button>
-            <button 
-              onClick={() => setIsScanning(!isScanning)}
-              className={`flex items-center gap-2 px-6 py-2 text-white rounded-md text-sm font-bold transition-all ${
-                isScanning 
-                  ? "bg-warning hover:bg-warning/80 shadow-[0_0_20px_rgba(245,158,11,0.3)]" 
-                  : "bg-accent hover:bg-accent-hover shadow-[0_0_15px_rgba(37,99,235,0.2)]"
-              }`}
-            >
-              {isScanning ? <><Pause size={16} /> Halt Scan</> : <><Play size={16} /> Run Engine</>}
-            </button>
           </div>
         </motion.div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           
-          {/* Filters Sidebar */}
-          <motion.div variants={item} className="w-full lg:w-72 flex flex-col gap-4">
-            <div className="glass-card p-4 backdrop-blur-md border border-white/5 bg-surface/40">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-bold font-mono text-white uppercase tracking-wider flex items-center gap-2">
-                  <SlidersHorizontal size={16} className="text-accent" /> Matrix Parameters
-                </h2>
-                <button className="text-xs text-accent hover:text-white transition-colors">Reset</button>
-              </div>
-
-              {/* Filter Tabs */}
-              <div className="flex bg-[#0A0A0B] rounded-md p-1 mb-4 border border-border">
-                {["Fundamental", "Technical", "Liquidity"].map(tab => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`flex-1 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded transition-colors ${
-                      activeTab === tab ? "bg-accent text-white shadow-sm" : "text-foreground-secondary hover:text-white"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-
-              {/* Filter Categories */}
-              <div className="space-y-4">
-                {activeTab === "Fundamental" && (
-                  <>
-                    <FilterGroup title="Market Cap (₹ Cr)" active />
-                    <FilterGroup title="P/E Ratio" />
-                    <FilterGroup title="ROCE (%)" />
-                    <FilterGroup title="Debt to Equity" />
-                  </>
-                )}
-                {activeTab === "Technical" && (
-                  <>
-                    <FilterGroup title="RSI (14)" active />
-                    <FilterGroup title="MACD Divergence" />
-                    <FilterGroup title="Volatility Contraction" />
-                    <FilterGroup title="Moving Averages" />
-                  </>
-                )}
-                {activeTab === "Liquidity" && (
-                  <>
-                    <FilterGroup title="Smart Money Index" active />
-                    <FilterGroup title="Dark Pool Accumulation" />
-                    <FilterGroup title="Options Gamma Exposure" />
-                  </>
-                )}
-              </div>
-            </div>
+          {/* Input Panel */}
+          <motion.div variants={item} className="md:col-span-5 glass-card p-6 border border-border/50 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl -z-10" />
             
-            {/* Active Scan Terminal */}
-            <div className="glass-card flex-1 min-h-[200px] border border-border/50 flex flex-col overflow-hidden">
-              <div className="bg-[#0A0A0B] border-b border-border/50 px-3 py-2 flex items-center gap-2">
-                <Activity className="w-4 h-4 text-accent" />
-                <span className="font-mono text-[10px] text-foreground-secondary uppercase tracking-widest">Engine Logs</span>
-                {isScanning && <div className="ml-auto w-2 h-2 rounded-full bg-positive animate-pulse" />}
-              </div>
-              <div 
-                ref={logRef}
-                className="flex-1 p-3 bg-[#050505] overflow-y-auto font-mono text-[10px] leading-relaxed space-y-1 scrollbar-hide text-gray-500"
-              >
-                <AnimatePresence>
-                  {scanLogs.map((log, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, x: -5 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className={log.includes("[SUCCESS]") ? "text-positive" : log.includes("[INIT]") ? "text-accent" : ""}
-                    >
-                      {log}
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            </div>
-          </motion.div>
+            <h2 className="text-[12px] font-bold font-mono text-white uppercase tracking-widest flex items-center gap-2 mb-6 pb-4 border-b border-border/50">
+              <Calculator size={16} className="text-accent" /> Trade Parameters
+            </h2>
 
-          {/* Results Table */}
-          <motion.div variants={item} className="flex-1 glass-card overflow-hidden flex flex-col backdrop-blur-md border border-white/5 bg-surface/40">
-            <div className="p-4 border-b border-border/50 flex justify-between items-center bg-surface-elevated/50">
-              <h2 className="text-sm font-bold font-mono text-white flex items-center gap-2 uppercase tracking-wide">
-                <span className="text-accent">{isScanning ? "..." : results.length}</span> Anomalies Detected
-              </h2>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-foreground-muted font-mono">Sort:</span>
-                <button className="flex items-center gap-1 text-xs font-bold font-mono text-white bg-[#0A0A0B] border border-border px-3 py-1.5 rounded">
-                  Alpha Score <ChevronDown size={14} className="text-accent" />
-                </button>
+            <div className="space-y-5">
+              <div>
+                <label className="text-[10px] font-mono text-foreground-secondary uppercase tracking-widest mb-1.5 block">Total Trading Capital (₹)</label>
+                <input 
+                  type="number" 
+                  value={capital} 
+                  onChange={(e) => setCapital(Number(e.target.value))}
+                  className="w-full bg-[#0A0A0B] border border-border rounded-md px-3 py-2.5 font-numeric text-sm text-white focus:outline-none focus:border-accent transition-colors"
+                />
               </div>
-            </div>
+              
+              <div>
+                <label className="text-[10px] font-mono text-foreground-secondary uppercase tracking-widest mb-1.5 block flex justify-between">
+                  <span>Risk Per Trade (%)</span>
+                  <span className="text-accent">{riskPercent}% (₹{riskAmount.toFixed(2)})</span>
+                </label>
+                <input 
+                  type="range" 
+                  min="0.1" max="5" step="0.1"
+                  value={riskPercent} 
+                  onChange={(e) => setRiskPercent(Number(e.target.value))}
+                  className="w-full accent-accent h-1.5 bg-surface rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
 
-            <div className="table-wrapper flex-1 relative">
-              {isScanning && (
-                <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-20 flex flex-col items-center justify-center">
-                  <div className="relative">
-                    <Loader2 className="animate-spin text-accent" size={48} />
-                    <div className="absolute inset-0 animate-ping opacity-20 border-2 border-accent rounded-full"></div>
-                  </div>
-                  <p className="mt-4 font-mono text-sm text-white tracking-widest uppercase">Executing Neural Scan</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-mono text-foreground-secondary uppercase tracking-widest mb-1.5 block">Entry Price (₹)</label>
+                  <input 
+                    type="number" 
+                    value={entryPrice} 
+                    onChange={(e) => setEntryPrice(Number(e.target.value))}
+                    className="w-full bg-[#0A0A0B] border border-border rounded-md px-3 py-2.5 font-numeric text-sm text-white focus:outline-none focus:border-accent transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-mono text-foreground-secondary uppercase tracking-widest mb-1.5 block">Stop Loss (₹)</label>
+                  <input 
+                    type="number" 
+                    value={stopLoss} 
+                    onChange={(e) => setStopLoss(Number(e.target.value))}
+                    className={`w-full bg-[#0A0A0B] border rounded-md px-3 py-2.5 font-numeric text-sm text-white focus:outline-none transition-colors ${isInvalidLong ? 'border-negative focus:border-negative' : 'border-border focus:border-accent'}`}
+                  />
+                </div>
+              </div>
+              
+              {isInvalidLong && (
+                <div className="p-3 bg-negative/10 border border-negative/20 rounded-md flex items-start gap-2">
+                  <AlertTriangle size={14} className="text-negative mt-0.5 shrink-0" />
+                  <p className="text-[10px] font-mono text-negative uppercase">Stop loss must be below entry price for long positions.</p>
                 </div>
               )}
+            </div>
+          </motion.div>
+
+          {/* Output Dashboard */}
+          <motion.div variants={item} className="md:col-span-7 flex flex-col gap-4">
+            
+            {/* Primary Action Card */}
+            <div className="glass-card p-6 border border-accent/20 bg-accent/5 flex flex-col justify-center items-center text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent pointer-events-none" />
+              <h3 className="text-xs font-mono text-foreground-secondary uppercase tracking-widest mb-2">Optimal Position Size</h3>
+              <div className="text-5xl font-bold font-numeric text-white mb-2 flex items-baseline gap-2">
+                {sharesToBuy} <span className="text-lg font-sans text-foreground-muted font-normal uppercase tracking-widest">Shares</span>
+              </div>
+              <p className="text-xs text-accent font-mono bg-accent/10 px-3 py-1 rounded-full border border-accent/20">
+                Total Allocation: ₹{totalPositionSize.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="glass-card p-5 border border-border/50">
+                <ShieldCheck className="text-negative mb-3 opacity-80" size={20} />
+                <h4 className="text-[10px] font-mono text-foreground-secondary uppercase tracking-widest mb-1">Max Loss (Risk)</h4>
+                <p className="text-xl font-bold font-numeric text-white">₹{riskAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+              </div>
               
-              <table className="data-table">
-                <thead className="bg-[#0A0A0B] sticky top-0 z-10 font-mono text-[11px] uppercase tracking-wider text-foreground-secondary">
-                  <tr>
-                    <th className="w-10 text-center border-r border-border/50">#</th>
-                    <th className="border-r border-border/50">Symbol / Price</th>
-                    <th className="text-right border-r border-border/50">Alpha Score</th>
-                    <th className="text-right border-r border-border/50">Smart Money</th>
-                    <th className="text-right border-r border-border/50">P/E</th>
-                    <th className="text-right border-r border-border/50">ROCE</th>
-                    <th className="text-right">1Y Trend</th>
-                  </tr>
-                </thead>
-                <tbody className="text-sm">
-                  {results.length === 0 && !isScanning ? (
-                    <tr>
-                      <td colSpan={7} className="py-12 text-center text-foreground-muted font-mono flex flex-col items-center gap-2">
-                        <Workflow className="text-foreground-muted mb-2 opacity-50" size={32} />
-                        <span className="text-warning">AWAITING LIVE DATA API CONNECTION</span>
-                        <span className="text-[10px] uppercase tracking-widest opacity-60">System requires market data feed to execute proprietary scans.</span>
-                      </td>
-                    </tr>
-                  ) : (
-                    results.map((stock, i) => (
-                      <tr key={stock.symbol} className="group hover:bg-accent/5 cursor-pointer border-b border-border/50">
-                        <td className="text-center font-mono text-foreground-muted border-r border-border/50">{i + 1}</td>
-                        <td className="border-r border-border/50">
-                          <p className="font-bold font-mono text-white group-hover:text-accent transition-colors">{stock.symbol}</p>
-                          <p className="text-xs text-foreground-secondary font-numeric font-medium">₹{stock.price.toFixed(2)}</p>
-                        </td>
-                        <td className="text-right border-r border-border/50">
-                          <div className="flex items-center justify-end gap-2">
-                            <span className="text-xs font-mono font-bold text-white">{stock.alphaScore}/100</span>
-                            <div className="w-16 h-1.5 bg-background rounded-full overflow-hidden border border-border">
-                              <div className="h-full bg-accent" style={{ width: `${stock.alphaScore}%` }}></div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-right border-r border-border/50">
-                          <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
-                            stock.smFlow === 'High' || stock.smFlow === 'Accumulation' 
-                              ? "bg-positive/10 text-positive border-positive/20" 
-                              : stock.smFlow === 'Distribution' 
-                                ? "bg-negative/10 text-negative border-negative/20"
-                                : "bg-surface-elevated text-foreground-secondary border-border"
-                          }`}>
-                            {stock.smFlow === 'High' && <Zap size={10} />}
-                            {stock.smFlow}
-                          </span>
-                        </td>
-                        <td className="text-right font-numeric text-foreground-secondary border-r border-border/50">{stock.pe}</td>
-                        <td className="text-right font-numeric text-white font-medium border-r border-border/50">{stock.roce}%</td>
-                        <td className="text-right pr-4">
-                          <div className="flex items-center justify-end gap-3">
-                            <span className={`font-numeric font-bold ${stock.return1y > 0 ? "text-positive" : "text-negative"}`}>
-                              {stock.return1y > 0 ? "+" : ""}{stock.return1y}%
-                            </span>
-                            {/* CSS-only sparkline mock */}
-                            <div className="flex items-end gap-[1px] h-4 w-12 opacity-70">
-                              {[...Array(6)].map((_, idx) => (
-                                <div key={idx} className={`w-1.5 ${stock.return1y > 0 ? "bg-positive" : "bg-negative"}`} style={{ height: `${Math.max(20, Math.random() * 100)}%` }}></div>
-                              ))}
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+              <div className="glass-card p-5 border border-border/50">
+                <Target className="text-warning mb-3 opacity-80" size={20} />
+                <h4 className="text-[10px] font-mono text-foreground-secondary uppercase tracking-widest mb-1">Leverage Needed</h4>
+                <p className="text-xl font-bold font-numeric text-white">{leverageRequired}</p>
+              </div>
+            </div>
+
+            {/* Take Profit Matrix */}
+            <div className="glass-card border border-border/50 overflow-hidden flex-1">
+              <div className="bg-surface/50 border-b border-border/50 px-4 py-3 flex items-center justify-between">
+                <h3 className="text-[10px] font-bold font-mono text-white uppercase tracking-widest">Take Profit Matrix</h3>
+                <span className="text-[10px] font-mono text-foreground-muted">Risk/Reward</span>
+              </div>
+              <div className="divide-y divide-border/50">
+                <div className="flex items-center justify-between p-4 hover:bg-surface/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded bg-surface border border-border flex items-center justify-center font-mono text-xs font-bold text-foreground-secondary">1:1</span>
+                    <span className="font-mono text-sm text-foreground-muted">Conservative</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="font-numeric font-bold text-white">₹{rr1Target.toFixed(2)}</span>
+                    <span className="text-xs font-mono text-positive bg-positive/10 px-2 py-1 rounded">+₹{riskAmount.toFixed(2)}</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 hover:bg-surface/30 transition-colors relative overflow-hidden">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-positive/50" />
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded bg-positive/10 border border-positive/20 flex items-center justify-center font-mono text-xs font-bold text-positive">1:2</span>
+                    <span className="font-mono text-sm text-white font-bold">Standard Target</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="font-numeric font-bold text-white text-lg">₹{rr2Target.toFixed(2)}</span>
+                    <span className="text-xs font-mono text-positive bg-positive/10 px-2 py-1 rounded border border-positive/20">+₹{(riskAmount * 2).toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-4 hover:bg-surface/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded bg-accent/10 border border-accent/20 flex items-center justify-center font-mono text-xs font-bold text-accent">1:3</span>
+                    <span className="font-mono text-sm text-accent">Runner Target</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="font-numeric font-bold text-white">₹{rr3Target.toFixed(2)}</span>
+                    <span className="text-xs font-mono text-positive bg-positive/10 px-2 py-1 rounded">+₹{(riskAmount * 3).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
           </motion.div>
-
         </div>
       </motion.div>
     </PageWrapper>
-  );
-}
-
-function FilterGroup({ title, active = false }: { title: string, active?: boolean }) {
-  return (
-    <div className="border border-border/80 rounded-md overflow-hidden bg-surface-elevated/50">
-      <button className="w-full px-3 py-2.5 text-xs font-bold font-mono tracking-wide text-left flex justify-between items-center text-foreground-secondary hover:text-white hover:bg-surface transition-colors">
-        {title}
-        <ChevronDown size={14} className={`transition-transform text-accent ${active ? "rotate-180" : ""}`} />
-      </button>
-      {active && (
-        <div className="p-3 border-t border-border/80 bg-[#0A0A0B]">
-          <div className="flex items-center justify-between text-[10px] font-mono text-foreground-muted mb-2 uppercase">
-            <span>Min</span>
-            <span>Max</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <input type="text" className="w-full bg-surface border border-border rounded px-2 py-1.5 font-numeric text-xs text-white focus:outline-none focus:border-accent" placeholder="0" />
-            <span className="text-foreground-muted">-</span>
-            <input type="text" className="w-full bg-surface border border-border rounded px-2 py-1.5 font-numeric text-xs text-white focus:outline-none focus:border-accent" placeholder="Max" />
-          </div>
-        </div>
-      )}
-    </div>
   );
 }
