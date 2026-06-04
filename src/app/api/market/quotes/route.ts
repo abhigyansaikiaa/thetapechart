@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const finnhubSymbols: string[] = [];
 
     for (const sym of symbols) {
-      if (sym.endsWith('.NS') || sym.endsWith('.BO') || sym.startsWith('^')) {
+      if (sym.endsWith('.NS') || sym.endsWith('.BO') || sym.startsWith('^') || sym.endsWith('=X')) {
         yahooSymbols.push(sym);
       } else {
         finnhubSymbols.push(sym);

@@ -19,6 +19,7 @@ export default function ChartPage() {
     if (sym === "^NSEI" || sym === "NSEI" || sym === "NIFTY 50") return "NSE:NIFTY";
     if (sym === "^NSEBANK" || sym === "NSEBANK" || sym === "NIFTY BANK") return "NSE:BANKNIFTY";
     if (sym === "FINNIFTY") return "NSE:FINNIFTY";
+    if (sym === "EURUSD=X") return "FX:EURUSD";
     if (sym.endsWith(".NS")) return `NSE:${sym.replace(".NS", "")}`;
     if (sym.endsWith(".BO")) return `BSE:${sym.replace(".BO", "")}`;
     return sym; // Default fallback (AAPL, BINANCE:BTCUSDT, etc.)

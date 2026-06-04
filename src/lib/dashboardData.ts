@@ -73,7 +73,7 @@ export const INDEX_SYMBOLS: IndexSymbol[] = [
   { symbol: "^NSEI", name: "NIFTY 50", color: "#3B82F6" },
   { symbol: "AAPL", name: "Apple Inc.", color: "#8B5CF6" },
   { symbol: "BINANCE:BTCUSDT", name: "Bitcoin", color: "#F59E0B" },
-  { symbol: "OANDA:EUR_USD", name: "EUR/USD", color: "#10B981" },
+  { symbol: "EURUSD=X", name: "EUR/USD", color: "#10B981" },
   { symbol: "TSLA", name: "Tesla", color: "#EAB308" },
   { symbol: "RELIANCE.NS", name: "Reliance", color: "#EF4444" },
 ];
