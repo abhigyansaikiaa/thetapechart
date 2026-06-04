@@ -165,6 +165,7 @@ export function JarvisOverlay() {
     }
   };
 
+  return (
     <motion.div 
       drag 
       dragMomentum={false}
