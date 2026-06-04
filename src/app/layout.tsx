@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Navbar } from "@/components/layout/Navbar";
+import { CookieConsent } from "@/components/layout/CookieConsent";
+import { ThemeProvider } from "next-themes";
 import { dark } from "@clerk/themes";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 
@@ -58,8 +61,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans relative">
         <div className="grid-background" />
-        {children}
-
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            {children}
+            <CookieConsent />
+        </ThemeProvider>
       </body>
     </html>
   );

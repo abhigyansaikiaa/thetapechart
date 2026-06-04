@@ -20,7 +20,8 @@ import {
   Bot,
   Monitor,
   Activity,
-  BrainCircuit
+  BrainCircuit,
+  CalendarDays
 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -50,7 +51,7 @@ const sidebarGroups = [
   {
     title: "Intelligence",
     items: [
-      { name: "AI Mentor", href: "/mentor", icon: MessageSquare },
+      { name: "Economic Calendar", href: "/calendar", icon: CalendarDays },
       { name: "News & Sentiment", href: "/news", icon: Newspaper },
       { name: "Learning Library", href: "/learn", icon: GraduationCap },
       { name: "Calculators", href: "/tools", icon: Calculator },

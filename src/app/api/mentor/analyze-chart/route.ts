@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 
 const VISION_SYSTEM_PROMPT = `
 You are an institutional Quant and elite Smart Money Concept (SMC) analyst.
@@ -12,94 +14,117 @@ You MUST:
 5. Present this in a highly structured, professional format. Do not use retail indicators like RSI or MACD in your primary thesis.
 `;
 
+const SECURITY_PATTERNS = [
+  /DROP\s+TABLE/i,
+  /OR\s+1\s*=\s*1/i,
+  /<script>/i,
+  /javascript:/i,
+  /UNION\s+SELECT/i,
+  /system\(/i,
+  /exec\(/i,
+];
+
 export async function POST(req: Request) {
   try {
-    const { imageBase64, filename } = await req.json();
+    const { userId } = auth();
+    const cookieStore = cookies();
+    
+    let { imageBase64, filename, prompt } = await req.json();
 
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    // ────────────────────────────────────────────────────────────────
+    // 1. SECURITY THREAT DETECTION & AUTO-BAN
+    // ────────────────────────────────────────────────────────────────
+    const payloadString = String(filename || "") + " " + String(prompt || "");
+    const isThreat = SECURITY_PATTERNS.some(pattern => pattern.test(payloadString));
 
-    if (!apiKey || apiKey.includes('placeholder')) {
-      // Mock heuristic: attempt to detect if it's a chart locally since we don't have Vision AI
-      const name = (filename || "").toLowerCase();
-      const invalidKeywords = ["car", "dog", "cat", "selfie", "person", "food", "meme", "photo", "terms", "condition", "text", "document"];
-      const isInvalid = invalidKeywords.some(kw => name.includes(kw));
-      
-      if (isInvalid) {
-        return NextResponse.json({ error: "Local Vision Engine: The uploaded image appears to be a photograph or text document, not a financial chart." }, { status: 400 });
+    if (isThreat) {
+      if (userId) {
+        console.warn(`[SECURITY] Threat detected from user ${userId}. Executing auto-ban.`);
+        await clerkClient.users.banUser(userId);
       }
+      return NextResponse.json({ error: "Security violation detected. Account banned." }, { status: 403 });
+    }
 
-      return NextResponse.json({
+    // ────────────────────────────────────────────────────────────────
+    // 2. STRICT DEVICE-BASED RATE LIMITING (2 per day)
+    // ────────────────────────────────────────────────────────────────
+    let deviceId = cookieStore.get('alphaedge_device_id')?.value;
+    
+    if (!deviceId) {
+      deviceId = crypto.randomUUID();
+      // Set a permanent 10-year cookie for device fingerprinting
+      cookieStore.set('alphaedge_device_id', deviceId, { maxAge: 60 * 60 * 24 * 365 * 10, httpOnly: true });
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const usageCookieName = `chart_usage_${deviceId}_${today}`;
+    const usageCount = parseInt(cookieStore.get(usageCookieName)?.value || "0");
+
+    if (usageCount >= 2) {
+      return NextResponse.json({ 
+        error: "Device Limit Exceeded",
         content: [
-          {
-            text: "### MOCK ANALYSIS (Simulated Local Engine)\n\nSince the API key is not configured, I am running a simulated structural analysis.\n\nHowever, if I could see fully, I would identify the **Fair Value Gap** at the 4H timeframe and construct a 1:4 R:R short position targeting sell-side liquidity."
-          }
+          { text: "### DAILY LIMIT REACHED\n\nYour device has reached the maximum allowed chart analyses (2 per day). This limit is strictly enforced per device. Please come back tomorrow." }
         ]
-      });
+      }, { status: 429 });
     }
 
-    // Prepare Base64 Image string for OpenRouter
+    // Increment device usage counter
+    cookieStore.set(usageCookieName, (usageCount + 1).toString(), { maxAge: 60 * 60 * 24, httpOnly: true });
+
+    // ────────────────────────────────────────────────────────────────
+    // 3. GEMINI VISION API INTEGRATION
+    // ────────────────────────────────────────────────────────────────
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY is not configured.");
+    }
+
+    // Clean Base64 string for Gemini (remove data:image/... prefix if exists)
     let base64Data = imageBase64;
-    if (!imageBase64.startsWith("data:image")) {
-       base64Data = `data:image/jpeg;base64,${imageBase64}`;
+    let mimeType = "image/jpeg";
+    
+    if (imageBase64.includes(";base64,")) {
+      const parts = imageBase64.split(";base64,");
+      mimeType = parts[0].replace("data:", "");
+      base64Data = parts[1];
     }
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    
+    const response = await fetch(geminiUrl, {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:3000",
-        "X-Title": "Tape Chart Quant"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemma-4-31b-it:free",
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: `${VISION_SYSTEM_PROMPT}\n\nAnalyze this chart based on SMC principles. Give me the directional bias, key liquidity levels, and an actionable trade plan.`
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: base64Data
-                }
+        contents: [{
+          parts: [
+            { text: VISION_SYSTEM_PROMPT + "\n\nAnalyze this chart based on SMC principles. Give me the directional bias, key liquidity levels, and an actionable trade plan." },
+            {
+              inline_data: {
+                mime_type: mimeType,
+                data: base64Data
               }
-            ]
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 800
+            }
+          ]
+        }]
       })
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        // Fallback to local heuristic if OpenRouter rate limits the user
-        return NextResponse.json({
-          content: [
-            {
-              text: "### RATE LIMIT EXCEEDED (Fallback Mode Activated)\n\nOur institutional AI clusters are currently at maximum capacity. Switching to local heuristic analysis.\n\nBased on structural probability models, the uploaded chart indicates a potential **Fair Value Gap (FVG)** near the current price action. Look for a sweep of sell-side liquidity before entering long, targeting a 1:3 R:R minimum."
-            }
-          ]
-        });
-      }
-
       const errorText = await response.text();
-      console.error("[OpenRouter Vision API Error]:", errorText);
-      throw new Error(`OpenRouter API returned status ${response.status}`);
+      console.error("[Gemini API Error]:", errorText);
+      throw new Error("Failed to process chart analysis.");
     }
 
     const data = await response.json();
-    const replyText = data.choices[0].message.content;
+    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Analysis complete.";
 
     return NextResponse.json({
       content: [
         { text: replyText }
       ]
     });
+
   } catch (error: any) {
     console.error("[Chart Analysis API Error]:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
