@@ -25,17 +25,17 @@ export async function POST(req: Request) {
       
       let reply = "Understood. My offline heuristic engine calculates a 72% probability of success for this structural pattern. Let me know if you wish to execute.";
       
-      if (lastMessage.includes("how are you") || lastMessage.includes("how are u") || lastMessage.includes("what's up")) {
+      if (/\b(how are you|how are u|what's up)\b/.test(lastMessage)) {
         reply = "I am operating at peak efficiency, sir. My heuristic models are fully loaded and ready to analyze the markets. What shall we look at today?";
-      } else if (lastMessage.includes("hey jarvis") || lastMessage.includes("hello") || lastMessage.includes("hi")) {
+      } else if (/\b(hey jarvis|hello|hi)\b/.test(lastMessage)) {
         reply = "Hello sir. I am currently running locally on your hardware. How can I assist you with your quantitative analysis today?";
-      } else if (lastMessage.includes("buy") || lastMessage.includes("long")) {
+      } else if (/\b(buy|long)\b/.test(lastMessage)) {
         reply = "Analyzing long setup... The current risk-to-reward ratio appears acceptable. However, ensure we have cleared the sell-side liquidity before execution.";
-      } else if (lastMessage.includes("sell") || lastMessage.includes("short")) {
+      } else if (/\b(sell|short)\b/.test(lastMessage)) {
         reply = "Short setup detected. Volume delta confirms institutional selling pressure. Proceed with strict stop loss parameters above the recent Fair Value Gap.";
-      } else if (lastMessage.includes("trend") || lastMessage.includes("market")) {
+      } else if (/\b(trend|market)\b/.test(lastMessage)) {
         reply = "The macro trend remains structurally bullish on the higher timeframes, but we are currently in a local retracement phase testing the daily order block.";
-      } else if (lastMessage.includes("thank")) {
+      } else if (/\b(thank)\b/.test(lastMessage)) {
         reply = "You are very welcome, sir. I am always here to assist.";
       }
 
