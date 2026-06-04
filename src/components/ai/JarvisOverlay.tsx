@@ -12,7 +12,7 @@ export function JarvisOverlay() {
   const [chatHistory, setChatHistory] = useState<{role: string, content: string}[]>([]);
   
   const recognitionRef = useRef<any>(null);
-  const synthRef = useRef<SpeechSynthesis | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const isManuallyStoppedRef = useRef(false);
   const isProcessingRef = useRef(false);
   const clearTimerRef = useRef<any>(null);
@@ -24,7 +24,6 @@ export function JarvisOverlay() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      synthRef.current = window.speechSynthesis;
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       
       if (SpeechRecognition) {
@@ -88,38 +87,45 @@ export function JarvisOverlay() {
       setResponse(textResponse);
       setChatHistory(prev => [...prev, { role: "user", content: query }, { role: "assistant", content: textResponse }]);
 
-      // Speak response
-      if (synthRef.current) {
-        const utterance = new SpeechSynthesisUtterance(textResponse);
-        utterance.pitch = 0.9;
-        utterance.rate = 1.05;
+      // Speak response using ElevenLabs
+      try {
+        const ttsRes = await fetch("/api/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: textResponse })
+        });
         
-        // Try to find a male/British voice for Jarvis
-        const voices = synthRef.current.getVoices();
-        const jarvisVoice = voices.find(v => v.name.includes("Google UK English Male") || v.lang === "en-GB");
-        if (jarvisVoice) utterance.voice = jarvisVoice;
-
-        utterance.onend = () => {
+        if (ttsRes.ok && !isManuallyStoppedRef.current) {
+          const audioBlob = await ttsRes.blob();
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          audioRef.current = audio;
+          
+          audio.onended = () => {
+            setIsSpeaking(false);
+            isProcessingRef.current = false;
+            if (recognitionRef.current && !isManuallyStoppedRef.current) {
+              try {
+                recognitionRef.current.start();
+                setIsListening(true);
+              } catch(e) {}
+            }
+            if (isManuallyStoppedRef.current) {
+               clearText();
+            } else {
+               clearTimerRef.current = setTimeout(clearText, 6000);
+            }
+          };
+          
+          await audio.play();
+        } else {
           setIsSpeaking(false);
           isProcessingRef.current = false;
-          // Only auto-resume if not manually stopped
-          if (recognitionRef.current && !isManuallyStoppedRef.current) {
-            try {
-              recognitionRef.current.start();
-              setIsListening(true);
-            } catch(e) {
-              // Ignore if already started
-            }
-          }
-          
-          if (isManuallyStoppedRef.current) {
-             clearText();
-          } else {
-             // Start auto-clear timer in case user doesn't say anything next
-             clearTimerRef.current = setTimeout(clearText, 6000);
-          }
-        };
-        synthRef.current.speak(utterance);
+        }
+      } catch (err) {
+        console.error("TTS playback error:", err);
+        setIsSpeaking(false);
+        isProcessingRef.current = false;
       }
     } catch (err) {
       console.error(err);
@@ -129,31 +135,40 @@ export function JarvisOverlay() {
     }
   };
 
-  const playGreeting = () => {
-    if (synthRef.current) {
-      setIsSpeaking(true);
-      const greeting = "Hi, I'm the Tape Chart bot. How can I help you with your trading?";
-      setResponse(greeting);
-      const utterance = new SpeechSynthesisUtterance(greeting);
-      utterance.pitch = 0.9;
-      utterance.rate = 1.05;
+  const playGreeting = async () => {
+    setIsSpeaking(true);
+    const greeting = "Hi, I'm the Tape Chart bot. How can I help you with your trading?";
+    setResponse(greeting);
+    
+    try {
+      const ttsRes = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: greeting })
+      });
       
-      const voices = synthRef.current.getVoices();
-      const jarvisVoice = voices.find(v => v.name.includes("Google UK English Male") || v.lang === "en-GB");
-      if (jarvisVoice) utterance.voice = jarvisVoice;
-      
-      utterance.onend = () => {
+      if (ttsRes.ok && !isManuallyStoppedRef.current) {
+        const audioBlob = await ttsRes.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+        
+        audio.onended = () => {
+          setIsSpeaking(false);
+          if (recognitionRef.current && !isManuallyStoppedRef.current) {
+            try {
+              recognitionRef.current.start();
+              setIsListening(true);
+            } catch(e) {}
+          }
+        };
+        
+        await audio.play();
+      } else {
         setIsSpeaking(false);
-        // Start listening after greeting ends, unless manually stopped
-        if (recognitionRef.current && !isManuallyStoppedRef.current) {
-          try {
-            recognitionRef.current.start();
-            setIsListening(true);
-          } catch(e) {}
-        }
-      };
-      
-      synthRef.current.speak(utterance);
+      }
+    } catch (err) {
+      setIsSpeaking(false);
     }
   };
 
@@ -161,7 +176,10 @@ export function JarvisOverlay() {
     if (isListening) {
       isManuallyStoppedRef.current = true;
       recognitionRef.current?.stop();
-      if (synthRef.current?.speaking) synthRef.current.cancel();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
       
       setIsListening(false);
       setIsSpeaking(false);
@@ -172,7 +190,10 @@ export function JarvisOverlay() {
       return;
     } else if (isSpeaking && !isListening) {
       // INTERRUPT JARVIS: Cancel speech and immediately start listening
-      if (synthRef.current?.speaking) synthRef.current.cancel();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
       setIsSpeaking(false);
       setResponse("Listening...");
       
