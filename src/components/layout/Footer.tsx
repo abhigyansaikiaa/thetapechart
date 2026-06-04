@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, MessageCircle, Globe, Link as LinkIcon, Mail } from "lucide-react";
+import { NewsletterForm } from "./NewsletterForm";
 
 export function Footer() {
   return (
@@ -77,17 +78,7 @@ export function Footer() {
         {/* Newsletter & Copyright Section */}
         <div className="pt-8 flex flex-col lg:flex-row justify-between items-center gap-6">
           <div className="flex-1 max-w-md w-full">
-            <div className="relative flex items-center">
-              <Mail className="absolute left-4 text-foreground-muted w-4 h-4" />
-              <input 
-                type="email" 
-                placeholder="Subscribe to institutional research..." 
-                className="w-full bg-[#111113] border border-border rounded-full pl-11 pr-32 py-3 text-sm text-white focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all"
-              />
-              <button className="absolute right-1.5 top-1.5 bottom-1.5 bg-white text-black px-4 rounded-full text-xs font-bold hover:bg-gray-200 transition-colors flex items-center gap-1">
-                Join <ArrowRight size={14} />
-              </button>
-            </div>
+            <NewsletterForm />
           </div>
           
           <div className="text-center lg:text-right">

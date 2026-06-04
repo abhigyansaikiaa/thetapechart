@@ -66,22 +66,18 @@ export default function MutualFundsPage() {
 
         {/* Global Metrics Grid */}
         <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <MetricCard title="Nifty 50 (1Y Return)" value="28.4%" trend="up" icon={Activity} />
-          <MetricCard title="Avg Small Cap (1Y)" value="45.2%" trend="up" icon={TrendingUp} />
+          <MetricCard title="Nifty 50 (1Y Return)" value="-" subtitle="Awaiting Data" icon={Activity} />
+          <MetricCard title="Avg Small Cap (1Y)" value="-" subtitle="Awaiting Data" icon={TrendingUp} />
           
           {/* AI Recommendation Box */}
           <div className="glass-card p-4 lg:col-span-2 border border-border/50 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full blur-3xl -z-10 group-hover:bg-accent/20 transition-colors" />
-            <h3 className="text-[10px] font-bold font-mono text-accent mb-2 uppercase tracking-widest flex items-center gap-2">
+            <h3 className="text-[10px] font-bold font-mono text-warning mb-2 uppercase tracking-widest flex items-center gap-2">
               <ShieldCheck size={14} /> Algorithmic Asset Allocation
             </h3>
             <div className="flex flex-col md:flex-row gap-4 items-center">
               <p className="text-sm text-foreground-secondary font-mono flex-1">
-                Current macro regime suggests a transition to <span className="text-white font-bold">Large & Mid Cap bias</span>. Recommend reducing small-cap exposure by 15% to hedge against valuation compression.
+                Awaiting connection to Wealth Management API to generate personalized asset allocation strategies.
               </p>
-              <button className="px-4 py-2 bg-surface border border-border hover:border-accent/50 rounded-lg text-xs font-mono font-bold text-white transition-colors whitespace-nowrap">
-                Apply Rebalance
-              </button>
             </div>
           </div>
         </motion.div>
@@ -121,35 +117,17 @@ export default function MutualFundsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {mockFunds.map(fund => (
-                    <tr key={fund.id} className="group hover:bg-surface/50 cursor-pointer border-b border-border/50">
-                      <td className="border-r border-border/50">
-                        <p className="font-bold text-white group-hover:text-accent transition-colors">{fund.name}</p>
-                        <p className="text-[10px] font-mono uppercase tracking-widest text-foreground-muted mt-1">{fund.category}</p>
-                      </td>
-                      <td className="text-right font-numeric text-foreground-secondary border-r border-border/50">₹{fund.aum.toLocaleString()}</td>
-                      <td className="text-right border-r border-border/50">
-                        <span className={`text-[10px] font-bold font-mono uppercase tracking-widest px-2 py-0.5 rounded border ${
-                          fund.risk.includes('High') ? 'bg-negative/10 text-negative border-negative/20' : 'bg-warning/10 text-warning border-warning/20'
-                        }`}>
-                          {fund.risk}
+                  <tr>
+                    <td colSpan={6} className="py-16 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <Target className="text-foreground-muted mb-2 opacity-50" size={32} />
+                        <span className="text-warning font-mono font-bold tracking-widest">AWAITING WEALTH API</span>
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-foreground-muted opacity-60">
+                          Connect your broker to load master fund database and holdings.
                         </span>
-                      </td>
-                      <td className="text-right border-r border-border/50 font-numeric">
-                        <span className={fund.alpha > 0 ? "text-positive" : "text-negative"}>
-                          {fund.alpha > 0 ? "+" : ""}{fund.alpha}%
-                        </span>
-                      </td>
-                      <td className="text-right border-r border-border/50">
-                        <div className="flex items-center justify-end gap-2">
-                          <span className="font-numeric font-bold text-white">{fund.cagr3y}%</span>
-                        </div>
-                      </td>
-                      <td className="text-right">
-                        <ChevronRight size={16} className="inline-block text-foreground-muted group-hover:text-accent" />
-                      </td>
-                    </tr>
-                  ))}
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -206,33 +184,9 @@ export default function MutualFundsPage() {
               <h2 className="text-[10px] font-bold font-mono text-foreground-secondary uppercase tracking-widest mb-4 flex items-center gap-2">
                 <Layers size={14} className="text-warning" /> Portfolio Overlap Matrix
               </h2>
-              <p className="text-xs text-foreground-muted mb-4 font-mono">
-                High overlap detected between your active Small Cap funds. Consider consolidating to reduce expense drag.
+              <p className="text-xs text-foreground-muted mb-4 font-mono text-center py-4">
+                Awaiting portfolio sync to calculate overlap metrics.
               </p>
-              
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-xs mb-1 font-mono">
-                    <span className="text-white">Quant Small Cap</span>
-                    <span className="text-warning font-bold">42% Overlap</span>
-                  </div>
-                  <div className="w-full bg-background rounded-full h-1.5 overflow-hidden border border-border/50">
-                    <div className="bg-warning h-full rounded-full" style={{ width: '42%' }}></div>
-                  </div>
-                  <span className="text-[10px] text-foreground-muted mt-1 block">With Nippon Small Cap</span>
-                </div>
-                
-                <div>
-                  <div className="flex justify-between text-xs mb-1 font-mono">
-                    <span className="text-white">HDFC Index Nifty 50</span>
-                    <span className="text-positive font-bold">4% Overlap</span>
-                  </div>
-                  <div className="w-full bg-background rounded-full h-1.5 overflow-hidden border border-border/50">
-                    <div className="bg-positive h-full rounded-full" style={{ width: '4%' }}></div>
-                  </div>
-                  <span className="text-[10px] text-foreground-muted mt-1 block">With Parag Parikh Flexi</span>
-                </div>
-              </div>
               
               <button className="w-full mt-5 py-2 bg-surface hover:bg-surface-elevated border border-border rounded-md text-[10px] font-bold font-mono uppercase tracking-widest text-white transition-colors">
                 Run Deep Overlap Scan

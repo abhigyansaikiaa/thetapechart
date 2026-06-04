@@ -77,21 +77,20 @@ export default function OptionsChainPage() {
 
         {/* Pro Metrics Dashboard */}
         <motion.div variants={item} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          <MetricCard title="Put-Call Ratio (PCR)" value="1.15" trend="up" subtitle="Bullish Bias" className="p-4 border-t-2 border-t-positive" />
-          <MetricCard title="Max Pain Strike" value="22,500" subtitle="Heavy call writing" className="p-4" />
-          <MetricCard title="Implied Volatility (IV)" value="14.2%" trend="down" subtitle="IV Crush active" className="p-4 border-t-2 border-t-negative" />
-          <MetricCard title="India VIX" value="12.8" trend="down" subtitle="Low fear environment" className="p-4" />
+          <MetricCard title="Put-Call Ratio (PCR)" value="-" subtitle="Awaiting Data" className="p-4" />
+          <MetricCard title="Max Pain Strike" value="-" subtitle="Awaiting Data" className="p-4" />
+          <MetricCard title="Implied Volatility (IV)" value="-" subtitle="Awaiting Data" className="p-4" />
+          <MetricCard title="India VIX" value="-" subtitle="Awaiting Data" className="p-4" />
           
           {/* Mock IV Skew Chart Box */}
           <div className="glass-card p-4 hidden lg:flex flex-col border border-border/50 relative overflow-hidden group">
             <h3 className="text-[10px] font-bold font-mono text-foreground-secondary uppercase tracking-widest mb-2 z-10">Volatility Skew</h3>
             <div className="flex-1 flex items-end gap-1 z-10 opacity-80">
-              {/* CSS Volatility surface representation */}
-              {[40, 30, 20, 15, 12, 10, 12, 16, 25, 35].map((val, i) => (
-                <div key={i} className={`flex-1 rounded-t-sm ${i < 5 ? "bg-negative" : "bg-positive"}`} style={{ height: `${val}%` }} />
-              ))}
+              <div className="flex-1 rounded-t-sm bg-surface" style={{ height: `10%` }} />
+              <div className="flex-1 rounded-t-sm bg-surface" style={{ height: `10%` }} />
+              <div className="flex-1 rounded-t-sm bg-surface" style={{ height: `10%` }} />
             </div>
-            <p className="text-[10px] text-foreground-muted mt-2 z-10 font-mono">Puts pricing &gt; Calls</p>
+            <p className="text-[10px] text-warning mt-2 z-10 font-mono text-center">AWAITING LIVE DATA</p>
             <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent pointer-events-none" />
           </div>
         </motion.div>
@@ -149,62 +148,17 @@ export default function OptionsChainPage() {
                 </tr>
               </thead>
               <tbody className="font-numeric text-xs font-medium">
-                {STRIKES.map((strike, idx) => {
-                  const isCallITM = strike < SPOT_PRICE;
-                  const isPutITM = strike > SPOT_PRICE;
-                  // ATM calculation (closest strike to spot)
-                  const isAtMoney = Math.abs(strike - SPOT_PRICE) === Math.min(...STRIKES.map(s => Math.abs(s - SPOT_PRICE)));
-                  
-                  // Mock Greeks based on moneyness
-                  const distance = (strike - SPOT_PRICE) / SPOT_PRICE;
-                  const callDelta = isCallITM ? (0.5 + Math.abs(distance)*10).toFixed(2) : (0.5 - Math.abs(distance)*10).toFixed(2);
-                  const putDelta = isPutITM ? (-0.5 - Math.abs(distance)*10).toFixed(2) : (-0.5 + Math.abs(distance)*10).toFixed(2);
-                  const theta = (-Math.random() * 5).toFixed(1);
-
-                  return (
-                    <tr key={strike} className={`
-                      hover:bg-surface-hover transition-colors border-b border-border/30
-                      ${isAtMoney ? 'border-y-2 border-y-accent bg-accent/5 shadow-[0_0_15px_rgba(59,130,246,0.1)_inset]' : ''}
-                    `}>
-                      {/* Calls */}
-                      <td className={`text-right text-foreground-secondary ${isCallITM ? 'bg-positive/5' : ''}`}>{Math.max(0, Math.min(1, parseFloat(callDelta))).toFixed(2)}</td>
-                      <td className={`text-right text-negative/70 ${isCallITM ? 'bg-positive/5' : ''}`}>{theta}</td>
-                      <td className={`text-right ${isCallITM ? 'bg-positive/5' : ''}`}>{(Math.random() * 50 + 10).toFixed(1)}</td>
-                      <td className={`text-right ${isCallITM ? 'bg-positive/5' : ''}`}>
-                        <span className={Math.random() > 0.5 ? 'text-positive' : 'text-negative'}>
-                          {(Math.random() * 10 - 5).toFixed(1)}
-                        </span>
-                      </td>
-                      <td className={`text-right text-foreground-muted ${isCallITM ? 'bg-positive/5' : ''}`}>{(Math.random() * 500).toFixed(0)}K</td>
-                      <td className={`text-right text-foreground-secondary ${isCallITM ? 'bg-positive/5' : ''}`}>{(Math.random() * 5 + 10).toFixed(1)}</td>
-                      <td className={`text-right border-r border-border/50 font-bold ${isCallITM ? 'bg-positive/10 text-positive' : 'text-white'}`}>
-                        {isCallITM ? (SPOT_PRICE - strike + 50).toFixed(2) : (Math.random() * 40).toFixed(2)}
-                      </td>
-                      
-                      {/* Strike ATM Highlight */}
-                      <td className={`text-center font-bold border-r border-border/50 px-4 relative ${isAtMoney ? 'bg-accent text-white shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'bg-surface/30 text-white'}`}>
-                        {isAtMoney && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white animate-pulse" />}
-                        {strike}
-                        {isAtMoney && <div className="absolute right-0 top-0 bottom-0 w-1 bg-white animate-pulse" />}
-                      </td>
-                      
-                      {/* Puts */}
-                      <td className={`text-left font-bold ${isPutITM ? 'bg-negative/10 text-negative' : 'text-white'}`}>
-                        {isPutITM ? (strike - SPOT_PRICE + 50).toFixed(2) : (Math.random() * 40).toFixed(2)}
-                      </td>
-                      <td className={`text-left text-foreground-secondary ${isPutITM ? 'bg-negative/5' : ''}`}>{(Math.random() * 5 + 10).toFixed(1)}</td>
-                      <td className={`text-left text-foreground-muted ${isPutITM ? 'bg-negative/5' : ''}`}>{(Math.random() * 500).toFixed(0)}K</td>
-                      <td className={`text-left ${isPutITM ? 'bg-negative/5' : ''}`}>
-                        <span className={Math.random() > 0.5 ? 'text-positive' : 'text-negative'}>
-                          {(Math.random() * 10 - 5).toFixed(1)}
-                        </span>
-                      </td>
-                      <td className={`text-left ${isPutITM ? 'bg-negative/5' : ''}`}>{(Math.random() * 50 + 10).toFixed(1)}</td>
-                      <td className={`text-left text-negative/70 ${isPutITM ? 'bg-negative/5' : ''}`}>{theta}</td>
-                      <td className={`text-left text-foreground-secondary ${isPutITM ? 'bg-negative/5' : ''}`}>{Math.max(-1, Math.min(0, parseFloat(putDelta))).toFixed(2)}</td>
-                    </tr>
-                  )
-                })}
+                <tr>
+                  <td colSpan={15} className="py-16 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <Activity className="text-foreground-muted mb-2 opacity-50" size={32} />
+                      <span className="text-warning font-mono font-bold tracking-widest">AWAITING OPTIONS FEED</span>
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-foreground-muted opacity-60">
+                        Live options chain and Greeks calculation requires a premium data connection.
+                      </span>
+                    </div>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>

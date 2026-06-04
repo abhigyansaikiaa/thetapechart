@@ -18,15 +18,8 @@ const item: Variants = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
-// Mock data with "Alpha Scores" and "Smart Money" metrics
-const INITIAL_RESULTS = [
-  { symbol: "TCS", price: 3950.45, cap: "1.44T", pe: 31.2, roce: 42.1, return1y: 24.5, alphaScore: 88, smFlow: "High" },
-  { symbol: "HDFCBANK", price: 1420.30, cap: "1.08T", pe: 15.4, roce: 18.2, return1y: -12.4, alphaScore: 65, smFlow: "Accumulation" },
-  { symbol: "RELIANCE", price: 2890.10, cap: "1.95T", pe: 28.5, roce: 10.4, return1y: 18.2, alphaScore: 72, smFlow: "Neutral" },
-  { symbol: "INFY", price: 1620.75, cap: "670B", pe: 24.1, roce: 31.5, return1y: 15.6, alphaScore: 81, smFlow: "High" },
-  { symbol: "ICICIBANK", price: 1050.25, cap: "740B", pe: 18.2, roce: 14.8, return1y: 22.1, alphaScore: 92, smFlow: "High" },
-  { symbol: "ITC", price: 410.80, cap: "510B", pe: 25.6, roce: 38.4, return1y: 8.5, alphaScore: 78, smFlow: "Distribution" },
-];
+// Live Data API not connected yet
+const INITIAL_RESULTS: any[] = [];
 
 const SCAN_LOGS_POOL = [
   "Parsing Order Book Depth for NIFTY50 components...",
@@ -64,8 +57,8 @@ export default function ScreenerPage() {
 
     const resultTimeout = setTimeout(() => {
       setIsScanning(false);
-      setScanLogs(prev => [...prev, "[SUCCESS] Scan Complete. 6 anomalies detected."]);
-      setResults(INITIAL_RESULTS); // In a real app, this would be fresh data
+      setScanLogs(prev => [...prev, "[SYSTEM] Scan complete. Live API data connection required."]);
+      setResults([]); // No live data available
     }, 5000);
 
     return () => {
@@ -242,8 +235,10 @@ export default function ScreenerPage() {
                 <tbody className="text-sm">
                   {results.length === 0 && !isScanning ? (
                     <tr>
-                      <td colSpan={7} className="py-12 text-center text-foreground-muted font-mono">
-                        No anomalies match the current matrix parameters.
+                      <td colSpan={7} className="py-12 text-center text-foreground-muted font-mono flex flex-col items-center gap-2">
+                        <Workflow className="text-foreground-muted mb-2 opacity-50" size={32} />
+                        <span className="text-warning">AWAITING LIVE DATA API CONNECTION</span>
+                        <span className="text-[10px] uppercase tracking-widest opacity-60">System requires market data feed to execute proprietary scans.</span>
                       </td>
                     </tr>
                   ) : (

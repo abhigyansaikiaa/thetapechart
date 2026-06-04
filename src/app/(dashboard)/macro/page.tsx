@@ -19,12 +19,7 @@ const item: Variants = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
-const macroEvents = [
-  { time: "08:30 PM", country: "US", event: "Core PCE Price Index (MoM)", impact: "High", prev: "0.2%", forecast: "0.3%", actual: "WAITING" },
-  { time: "08:30 PM", country: "US", event: "GDP Growth Rate (Q4)", impact: "High", prev: "4.9%", forecast: "3.2%", actual: "WAITING" },
-  { time: "07:30 AM", country: "IN", event: "RBI Interest Rate Decision", impact: "High", prev: "6.5%", forecast: "6.5%", actual: "6.5%" },
-  { time: "02:00 PM", country: "EU", event: "ECB Press Conference", impact: "Medium", prev: "-", forecast: "-", actual: "DONE" },
-];
+const macroEvents: any[] = [];
 
 // Heatmap data matrix (Asset Class Correlation)
 const assets = ["SPX", "NIFTY", "GOLD", "USOIL", "DXY", "BTC"];
@@ -154,33 +149,14 @@ export default function MacroPage() {
                     </tr>
                   </thead>
                   <tbody className="font-mono text-xs">
-                    {macroEvents.map((event, i) => (
-                      <tr key={i} className="border-b border-border/50 hover:bg-surface/30">
-                        <td className="border-r border-border/50">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${event.country === 'US' ? 'bg-blue-500/20 text-blue-400' : event.country === 'IN' ? 'bg-orange-500/20 text-orange-400' : 'bg-surface-elevated text-white'}`}>
-                              {event.country}
-                            </span>
-                            <span className="text-foreground-muted">{event.time}</span>
-                          </div>
-                        </td>
-                        <td className="font-medium text-white border-r border-border/50">
-                          <span className="flex items-center gap-2">
-                            {event.impact === 'High' && <span className="w-1.5 h-1.5 rounded-full bg-negative animate-pulse" />}
-                            {event.event}
-                          </span>
-                        </td>
-                        <td className="text-right font-numeric text-accent font-bold border-r border-border/50">{event.forecast}</td>
-                        <td className="text-right font-numeric text-foreground-secondary border-r border-border/50">{event.prev}</td>
-                        <td className="text-right font-numeric font-bold">
-                          {event.actual === "WAITING" ? (
-                            <span className="text-[10px] text-foreground-muted bg-surface px-2 py-1 rounded">PENDING</span>
-                          ) : (
-                            <span className="text-white">{event.actual}</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                    <tr>
+                      <td colSpan={5} className="py-12 text-center text-foreground-muted">
+                        <div className="flex flex-col items-center gap-2">
+                          <Calendar className="mb-2 opacity-50" size={24} />
+                          <span className="text-warning font-bold tracking-widest">AWAITING MACRO FEED</span>
+                        </div>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -198,34 +174,9 @@ export default function MacroPage() {
               </h3>
               <p className="text-[10px] font-mono text-foreground-muted mb-4 uppercase">Rolling 30-Day Pearson Matrix</p>
               
-              <div className="overflow-x-auto scrollbar-hide">
-                <div className="grid grid-cols-7 gap-1 min-w-max">
-                  {/* Header Row */}
-                  <div className="h-8"></div>
-                  {assets.map(asset => (
-                    <div key={asset} className="h-8 flex items-center justify-center text-[9px] font-mono font-bold text-foreground-secondary">
-                      {asset}
-                    </div>
-                  ))}
-                  
-                  {/* Matrix Rows */}
-                  {assets.map((asset, rowIndex) => (
-                    <React.Fragment key={asset}>
-                      <div className="h-8 flex items-center justify-end pr-2 text-[9px] font-mono font-bold text-foreground-secondary">
-                        {asset}
-                      </div>
-                      {correlationMatrix[rowIndex].map((val, colIndex) => (
-                        <div 
-                          key={`${rowIndex}-${colIndex}`} 
-                          className={`h-8 flex items-center justify-center text-[10px] font-mono font-bold rounded-sm transition-all hover:scale-110 cursor-crosshair ${getHeatmapColor(val)}`}
-                          title={`${asset} vs ${assets[colIndex]}: ${val}`}
-                        >
-                          {val.toFixed(2)}
-                        </div>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                </div>
+              <div className="py-12 text-center text-foreground-muted flex flex-col items-center">
+                <Activity className="mb-2 opacity-50" size={24} />
+                <span className="text-warning font-mono font-bold tracking-widest">AWAITING CORRELATION API</span>
               </div>
             </motion.div>
 
