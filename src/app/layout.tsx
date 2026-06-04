@@ -77,6 +77,16 @@ export default function RootLayout({
             colorInputBackground: "#18181B",
             colorInputText: "#FAFAFA",
           },
+          elements: {
+            headerTitle: "text-white",
+            headerSubtitle: "text-gray-400",
+            socialButtonsBlockButtonText: "text-gray-300 font-medium",
+            formFieldLabel: "text-gray-300",
+            dividerText: "text-gray-500",
+            footerActionText: "text-gray-400",
+            identityPreviewText: "text-gray-300",
+            formButtonPrimary: "text-white",
+          }
         }}
       >
         {layoutContent}
