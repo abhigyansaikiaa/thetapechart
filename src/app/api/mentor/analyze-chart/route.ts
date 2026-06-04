@@ -40,7 +40,8 @@ export async function POST(req: Request) {
     if (isThreat) {
       if (userId) {
         console.warn(`[SECURITY] Threat detected from user ${userId}. Executing auto-ban.`);
-        await clerkClient.users.banUser(userId);
+        const client = await clerkClient();
+        await client.users.banUser(userId);
       }
       return NextResponse.json({ error: "Security violation detected. Account banned." }, { status: 403 });
     }
