@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Brain, RefreshCw, Zap, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
+import { Brain, RefreshCw, Zap, TrendingUp, TrendingDown, AlertTriangle, Activity } from "lucide-react";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { motion } from "framer-motion";
 import useSWR from "swr";
