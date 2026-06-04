@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Toaster } from "react-hot-toast";
 import { Navbar } from "@/components/layout/Navbar";
 import { CookieConsent } from "@/components/layout/CookieConsent";
 import { dark } from "@clerk/themes";
@@ -63,7 +62,6 @@ export default function RootLayout({
         <div className="grid-background" />
             <Navbar />
             {children}
-            <Toaster position="bottom-right" />
             <CookieConsent />
       </body>
     </html>
