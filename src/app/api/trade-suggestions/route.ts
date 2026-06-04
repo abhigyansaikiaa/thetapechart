@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+
 import { MOCK_SUGGESTIONS } from "@/lib/dashboardData";
 
 // Turn off caching for this API route to ensure fresh suggestions
@@ -52,54 +52,37 @@ Based on current market conditions, provide 4 specific high-probability trade se
 }`;
 
     // ────────────────────────────────────────────────────────────────
-    // METHOD 1: Direct Anthropic SDK (if API key is configured)
+    // METHOD 1: Direct DeepSeek API
     // ────────────────────────────────────────────────────────────────
-    if (anthropicApiKey && !anthropicApiKey.includes("placeholder")) {
-      const anthropic = new Anthropic({
-        apiKey: anthropicApiKey,
-      });
-
-      const message = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
-        max_tokens: 2000,
-        messages: [{ role: "user", content: prompt }],
-      });
-
-      const content = message.content[0];
-      if (content.type === "text") {
-        const text = content.text;
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          return NextResponse.json(JSON.parse(jsonMatch[0]));
-        }
-      }
-    }
-
-    // ────────────────────────────────────────────────────────────────
-    // METHOD 2: Proxy via Create.xyz Integrations (using the token)
-    // ────────────────────────────────────────────────────────────────
-    try {
-      const response = await fetch("https://www.create.xyz/integrations/anthropic-claude-sonnet-4/", {
+    const deepseekKey = process.env.DEEPSEEK_API_KEY;
+    if (deepseekKey) {
+      const response = await fetch("https://api.deepseek.com/chat/completions", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "x-createxyz-project-group-id": projectGroupId,
+          "Authorization": `Bearer ${deepseekKey}`,
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          messages: [{ role: "user", content: prompt }],
-        }),
+          model: "deepseek-chat",
+          messages: [
+            { role: "system", content: "You are an expert quantitative trader." },
+            { role: "user", content: prompt }
+          ],
+          temperature: 0.3,
+          response_format: { type: "json_object" }
+        })
       });
 
       if (response.ok) {
         const data = await response.json();
-        const rawContent = data.choices?.[0]?.message?.content || "{}";
+        const rawContent = data.choices[0].message.content || "{}";
         const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           return NextResponse.json(JSON.parse(jsonMatch[0]));
         }
+      } else {
+        console.warn("DeepSeek API failed:", await response.text());
       }
-    } catch (proxyError) {
-      console.warn("Create.xyz proxy fallback failed:", proxyError);
     }
 
     // ────────────────────────────────────────────────────────────────

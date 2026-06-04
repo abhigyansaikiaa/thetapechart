@@ -70,14 +70,14 @@ export async function POST(req: Request) {
       });
     }
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "deepseek-chat",
         messages: [
           { role: "system", content: PLANNER_PROMPT },
           { role: "user", content: `User Profile - Capital: ${capital}, Risk Tolerance: ${risk}, Preferred Style: ${style}. Generate the JSON trading plan.` }

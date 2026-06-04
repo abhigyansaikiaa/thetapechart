@@ -87,20 +87,19 @@ EPS: ${eps || "N/A"}
 Provide your full trade analysis in the specified JSON format.
 `;
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "deepseek-chat",
         messages: [
           { role: "system", content: ANALYSIS_PROMPT },
           { role: "user", content: userPrompt }
         ],
         temperature: 0.3,
-        max_tokens: 1000,
         response_format: { type: "json_object" }
       })
     });
