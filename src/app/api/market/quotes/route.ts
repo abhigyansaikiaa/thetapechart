@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     }
 
     const symbols = symbolsParam.split(',').map(s => s.trim());
-    const finnhubKey = process.env.FINNHUB_API_KEY;
+    const finnhubKey = process.env.FINNHUB_API_KEY || 'd8gtjv1r01qhjpmpl080d8gtjv1r01qhjpmpl08g';
     
     // We will separate symbols into Yahoo (India) and Finnhub (US/Crypto/Forex)
     const yahooSymbols: string[] = [];
