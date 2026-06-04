@@ -157,7 +157,10 @@ export function NavbarMock() {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b border-border/50 shadow-xl py-4 px-4 flex flex-col gap-2 z-40">
+        <div 
+          className="md:hidden fixed top-16 left-0 right-0 bottom-0 bg-background/95 backdrop-blur-xl border-t border-border/50 overflow-y-auto pb-32 px-4 pt-4 flex flex-col gap-2 z-40"
+          style={{ WebkitBackdropFilter: "blur(24px)" }}
+        >
           {navItems.map((item) => (
             <Link
               key={item.name}
