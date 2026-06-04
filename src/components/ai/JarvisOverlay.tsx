@@ -165,8 +165,12 @@ export function JarvisOverlay() {
     }
   };
 
-  return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4 pointer-events-none">
+    <motion.div 
+      drag 
+      dragMomentum={false}
+      style={{ touchAction: "none" }}
+      className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4 pointer-events-auto cursor-move"
+    >
       
       <AnimatePresence>
         {(transcript || response) && (
@@ -174,7 +178,7 @@ export function JarvisOverlay() {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="bg-black/80 backdrop-blur-xl border border-[#3B82F6]/30 p-4 rounded-2xl max-w-sm pointer-events-auto shadow-[0_0_30px_rgba(59,130,246,0.15)]"
+            className="bg-black/80 backdrop-blur-xl border border-[#3B82F6]/30 p-4 rounded-2xl max-w-sm shadow-[0_0_30px_rgba(59,130,246,0.15)]"
           >
             {transcript && (
               <div className="mb-3">
@@ -196,7 +200,7 @@ export function JarvisOverlay() {
 
       <motion.button
         onClick={toggleListening}
-        className={`pointer-events-auto relative flex items-center justify-center w-16 h-16 rounded-full border-2 transition-all duration-300 ${
+        className={`relative flex items-center justify-center w-16 h-16 rounded-full border-2 transition-all duration-300 ${
           isListening 
             ? "bg-[#EF4444]/10 border-[#EF4444] shadow-[0_0_40px_rgba(239,68,68,0.4)]" 
             : isSpeaking
@@ -226,6 +230,6 @@ export function JarvisOverlay() {
         )}
       </motion.button>
 
-    </div>
+    </motion.div>
   );
 }

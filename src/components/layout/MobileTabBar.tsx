@@ -7,10 +7,10 @@ import { Home, LineChart, Target, BookOpen, Menu } from "lucide-react";
 
 const mobileItems = [
   { name: "Home", href: "/", icon: Home },
-  { name: "Analyze", href: "/analyze", icon: Target },
-  { name: "Screener", href: "/screener", icon: LineChart },
+  { name: "Terminal", href: "/terminal", icon: LineChart },
+  { name: "Screener", href: "/screener", icon: Target },
   { name: "Journal", href: "/journal", icon: BookOpen },
-  { name: "Menu", href: "/menu", icon: Menu }, // Opens mobile sidebar
+  { name: "Mentor", href: "/mentor", icon: Menu },
 ];
 
 export function MobileTabBar() {

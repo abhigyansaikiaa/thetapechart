@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { UserButton, SignInButton, useAuth } from "@clerk/nextjs";
-import { Menu, Bell } from "lucide-react";
+import { Menu, Bell, X } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const navItems = [
@@ -18,6 +18,7 @@ const navItems = [
 export function NavbarClient() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isSignedIn } = useAuth();
 
   useEffect(() => {
@@ -102,11 +103,44 @@ export function NavbarClient() {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button className="md:hidden text-foreground-secondary hover:text-white transition-colors">
-            <Menu size={24} />
+          <button 
+            className="md:hidden text-foreground-secondary hover:text-white transition-colors"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b border-border/50 shadow-xl py-4 px-4 flex flex-col gap-2 z-40">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-foreground-secondary hover:text-white py-3 px-4 rounded-lg hover:bg-surface transition-colors font-medium"
+            >
+              {item.name}
+            </Link>
+          ))}
+          <Link
+            href="/terminal"
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-foreground-secondary hover:text-white py-3 px-4 rounded-lg hover:bg-surface transition-colors font-medium mt-2 border-t border-border/50"
+          >
+            Stock Terminal
+          </Link>
+          <Link
+            href="/mentor"
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-accent hover:text-accent-hover py-3 px-4 rounded-lg hover:bg-accent/10 transition-colors font-bold"
+          >
+            AI Mentor
+          </Link>
+        </div>
+      )}
     </header>
   );
 }
