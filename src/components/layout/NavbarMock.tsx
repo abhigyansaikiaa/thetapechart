@@ -94,11 +94,7 @@ export function NavbarMock() {
             <ShieldCheck size={10} /> Mock Auth Mode
           </div>
 
-          <button className="text-foreground-secondary hover:text-white transition-colors relative">
-            <Bell size={20} />
-            {/* Notification Badge indicator */}
-            <span className="absolute top-0 right-0 w-2 h-2 bg-negative rounded-full animate-pulse-glow" />
-          </button>
+
           
           <div className="hidden sm:block relative" ref={dropdownRef}>
             {isSignedIn ? (

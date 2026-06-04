@@ -78,11 +78,7 @@ export function NavbarClient() {
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
-          <button className="text-foreground-secondary hover:text-white transition-colors relative">
-            <Bell size={20} />
-            {/* Notification Badge indicator */}
-            <span className="absolute top-0 right-0 w-2 h-2 bg-negative rounded-full animate-pulse-glow" />
-          </button>
+
           
           <div className="hidden sm:block">
             {isSignedIn ? (
