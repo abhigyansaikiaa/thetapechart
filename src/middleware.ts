@@ -78,9 +78,16 @@ export default async function middleware(req: NextRequest, event: any) {
     return new NextResponse("Access Denied - Automated Bot Detected", { status: 403 });
   }
 
-  // 2. Global Rate Limiting
-  if (ratelimit) {
+  // 2. Global Rate Limiting & IP Bans
+  if (ratelimit && redis) {
     const ip = req.headers.get("x-forwarded-for") ?? "127.0.0.1";
+
+    // Check if IP is permanently banned
+    const isBanned = await redis.get(`global_ban_ip_${ip}`);
+    if (isBanned) {
+      return new NextResponse("Access Denied - Your IP has been permanently banned for violating terms of service.", { status: 403 });
+    }
+
     const { success, limit, reset, remaining } = await ratelimit.limit(`global_limit_${ip}`);
     
     if (!success) {

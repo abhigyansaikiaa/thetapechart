@@ -13,7 +13,7 @@ import { TradeSuggestionCard } from "@/components/trading/TradeSuggestionCard";
 import { SectorHeatmap } from "@/components/trading/SectorHeatmap";
 import { FearGreedGauge } from "@/components/trading/FearGreedGauge";
 import { FiiDiiFlow } from "@/components/trading/FiiDiiFlow";
-import { EventsTimeline } from "@/components/trading/EventsTimeline";
+import { PositionSizeCalculator } from "@/components/tools/PositionSizeCalculator";
 
 
 import {
@@ -268,13 +268,14 @@ export default function Dashboard() {
                 label={getFearLabel(FEAR_GREED_VALUE)} 
               />
               <div className="h-px w-full bg-border/50" />
-              <EventsTimeline events={EVENTS} />
+              {/* Removed EventsTimeline */}
             </div>
           </div>
         </div>
 
         {/* BOTTOM GRID - Gainers, Losers, Quick Access */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
+
           
           {/* Top Gainers */}
           <div className="card p-4 rounded-xl flex flex-col">
@@ -334,6 +335,19 @@ export default function Dashboard() {
             </div>
           </div>
 
+        </div>
+        {/* RISK CALCULATOR ROW */}
+        <div className="mt-4">
+          <div className="glass-card p-5 relative overflow-hidden flex flex-col rounded-xl border border-border/50 bg-surface shadow-lg">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-warning/5 blur-3xl -z-10 rounded-full"></div>
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2">
+                <Activity size={18} className="text-warning" />
+                <h2 className="text-sm font-bold text-white tracking-wide">Advanced Position Size & Risk Calculator</h2>
+              </div>
+            </div>
+            <PositionSizeCalculator />
+          </div>
         </div>
       </div>
     </PageWrapper>
