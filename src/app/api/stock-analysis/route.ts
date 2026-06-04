@@ -1,9 +1,4 @@
 import { NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
-
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY || "placeholder",
-});
 
 const ANALYSIS_PROMPT = `
 You are an elite institutional quant trader with deep expertise in Smart Money Concepts (SMC), Inner Circle Trader (ICT) methodology, and price action analysis.
@@ -40,7 +35,9 @@ export async function POST(req: Request) {
   try {
     const { symbol, name, price, change, changePercent, dayHigh, dayLow, fiftyTwoWeekHigh, fiftyTwoWeekLow, volume, marketCap, pe, eps } = await req.json();
 
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.includes("placeholder")) {
+    const apiKey = process.env.GROQ_API_KEY;
+
+    if (!apiKey || apiKey.includes("placeholder")) {
       // Return mock analysis
       const isBullish = (changePercent || 0) > 0;
       return NextResponse.json({
@@ -58,7 +55,7 @@ export async function POST(req: Request) {
           "Running in offline mode — analysis is heuristic-based",
           "Price structure suggests potential continuation pattern",
           "Volume analysis indicates institutional participation",
-          "Add your GEMINI_API_KEY in .env.local for real AI analysis"
+          "Add your GROQ_API_KEY in .env.local for real AI analysis"
         ],
         key_levels: {
           resistance: [dayHigh?.toFixed(2) || "N/A", fiftyTwoWeekHigh?.toFixed(2) || "N/A"],
@@ -67,7 +64,7 @@ export async function POST(req: Request) {
           fvg: ["Check 4H chart for Fair Value Gaps"]
         },
         risk_warning: "Offline mode — this is not real AI analysis. Add your API key for accurate results.",
-        market_context: "Analysis generated from local heuristics. Connect Gemini API for institutional-grade insights."
+        market_context: "Analysis generated from local heuristics. Connect Groq API for institutional-grade insights."
       });
     }
 
@@ -90,25 +87,40 @@ EPS: ${eps || "N/A"}
 Provide your full trade analysis in the specified JSON format.
 `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [
-        { role: "user", parts: [{ text: ANALYSIS_PROMPT }] },
-        { role: "model", parts: [{ text: '{"understood": true}' }] },
-        { role: "user", parts: [{ text: userPrompt }] },
-      ],
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: ANALYSIS_PROMPT },
+          { role: "user", content: userPrompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 1000,
+        response_format: { type: "json_object" }
+      })
     });
 
-    const rawText = response.text || "";
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[Groq Stock Analysis API Error]:", errorText);
+      throw new Error(`Groq API returned status ${response.status}`);
+    }
+
+    const data = await response.json();
+    const rawText = data.choices[0].message.content || "{}";
     
-    // Try to parse JSON from the response (handle markdown fences)
+    // Try to parse JSON from the response
     let jsonStr = rawText;
     const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
     if (jsonMatch) {
       jsonStr = jsonMatch[1];
     }
     
-    // Clean up and parse
     jsonStr = jsonStr.trim();
     const analysis = JSON.parse(jsonStr);
 

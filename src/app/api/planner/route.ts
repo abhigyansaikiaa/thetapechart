@@ -1,10 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
 import { getQuote } from '@/lib/api/market';
-
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY || 'placeholder',
-});
 
 const PLANNER_PROMPT = `
 You are an elite quantitative algorithmic trading engine. 
@@ -38,11 +33,13 @@ export async function POST(req: Request) {
   try {
     const { capital, risk, style } = await req.json();
 
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.includes('placeholder')) {
+    const apiKey = process.env.GROQ_API_KEY;
+
+    if (!apiKey || apiKey.includes('placeholder')) {
       // Return a realistic mock JSON response
       return NextResponse.json({
         plan: {
-          summary: "MOCK MODE: Gemini API key missing. This is a simulated high-probability SMC strategy.",
+          summary: "MOCK MODE: Groq API key missing. This is a simulated high-probability SMC strategy.",
           trades: [
             {
               ticker: "RELIANCE.NS",
@@ -73,14 +70,32 @@ export async function POST(req: Request) {
       });
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: [
-        { role: 'user', parts: [{ text: `SYSTEM INSTRUCTION: ${PLANNER_PROMPT}\n\nUser Profile - Capital: ${capital}, Risk Tolerance: ${risk}, Preferred Style: ${style}. Generate the JSON trading plan.` }] }
-      ]
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: PLANNER_PROMPT },
+          { role: "user", content: `User Profile - Capital: ${capital}, Risk Tolerance: ${risk}, Preferred Style: ${style}. Generate the JSON trading plan.` }
+        ],
+        temperature: 0.5,
+        max_tokens: 1000,
+        response_format: { type: "json_object" }
+      })
     });
 
-    const rawJson = response.text || "{}";
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[Groq Planner API Error]:", errorText);
+      throw new Error(`Groq API returned status ${response.status}`);
+    }
+
+    const data = await response.json();
+    const rawJson = data.choices[0].message.content || "{}";
     const cleanedJson = rawJson.replace(/```json/g, "").replace(/```/g, "").trim();
     const planData = JSON.parse(cleanedJson);
 
