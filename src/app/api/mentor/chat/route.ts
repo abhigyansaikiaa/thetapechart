@@ -1,9 +1,4 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
-
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY || 'placeholder',
-});
 
 const SYSTEM_PROMPT = `
 You are Jarvis, a highly advanced, friendly, and humorous financial mentor and trading partner.
@@ -20,7 +15,9 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.includes('placeholder')) {
+    const apiKey = process.env.GROQ_API_KEY;
+
+    if (!apiKey || apiKey.includes('placeholder')) {
       const lastMessage = messages[messages.length - 1]?.content?.toLowerCase() || "";
       
       let reply = "Understood. My offline heuristic engine calculates a 72% probability of success for this structural pattern. Let me know if you wish to execute.";
@@ -44,28 +41,44 @@ export async function POST(req: Request) {
       });
     }
 
-    // Convert standard {role, content} to Gemini chat format
-    // Gemini expects contents: [{ role: 'user'|'model', parts: [{text: string}] }]
+    // Format messages for Groq/OpenAI format
     const formattedMessages = messages.map((m: any) => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }]
+      role: m.role === 'model' || m.role === 'assistant' ? 'assistant' : 'user',
+      content: m.content || m.parts?.[0]?.text || ""
     }));
 
-    // System instructions in @google/genai are typically set on the model initialization or as the first message
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: [
-        { role: 'user', parts: [{ text: `SYSTEM INSTRUCTION: ${SYSTEM_PROMPT}` }] },
-        { role: 'model', parts: [{ text: `Understood. I will strictly act as the The Tape Chart Quant mentor.` }] },
-        ...formattedMessages
-      ]
+    // Insert system prompt at the beginning
+    formattedMessages.unshift({
+      role: "system",
+      content: SYSTEM_PROMPT
     });
 
-    // We keep the return structure similar to what the frontend expects 
-    // The frontend looks for `data.content[0].text`
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "llama3-8b-8192", // Using Llama 3 8B which is incredibly fast for voice bots
+        messages: formattedMessages,
+        temperature: 0.7,
+        max_tokens: 150 // Keep it concise for voice
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[Groq API Error]:", errorText);
+      throw new Error(`Groq API returned status ${response.status}`);
+    }
+
+    const data = await response.json();
+    const replyText = data.choices[0].message.content;
+
     return NextResponse.json({
       content: [
-        { text: response.text }
+        { text: replyText }
       ]
     });
   } catch (error: any) {
