@@ -16,14 +16,46 @@ const isMockMode = () => {
   return !key || key.includes("placeholder");
 };
 
-/**
- * Fetches the current quote for a given symbol using AlphaVantage.
- * Returns mock data if API key is missing or invalid.
- */
 export async function getQuote(symbol: string) {
-  if (isMockMode()) {
-    console.warn("[Market API] Using MOCK data for quote:", symbol);
-    // Return realistic mock data
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`;
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+      next: { revalidate: 60 }
+    });
+
+    if (!res.ok) {
+      throw new Error(`Yahoo Finance returned ${res.status}`);
+    }
+
+    const data = await res.json();
+    const result = data.chart?.result?.[0];
+    if (!result) throw new Error("Invalid symbol or no data");
+
+    const meta = result.meta;
+    const price = meta.regularMarketPrice || 0;
+    const previousClose = meta.chartPreviousClose || meta.previousClose || price;
+    const change = price - previousClose;
+    const changePercent = previousClose ? (change / previousClose) * 100 : 0;
+    
+    // Get volume from latest quote
+    const timestamps = result.timestamp || [];
+    const quotes = result.indicators?.quote?.[0];
+    const lastIdx = timestamps.length - 1;
+    const volume = quotes?.volume?.[lastIdx] || 0;
+
+    return {
+      symbol: meta.symbol || symbol,
+      price: price.toFixed(2),
+      change: change.toFixed(2),
+      changePercent: changePercent.toFixed(2) + "%",
+      volume: volume.toString(),
+      lastTradingDay: new Date().toISOString().split('T')[0]
+    };
+  } catch (error) {
+    console.warn(`[Market API] Fallback to MOCK data for quote: ${symbol} due to error:`, error);
     return {
       symbol: symbol.toUpperCase(),
       price: (Math.random() * 500 + 50).toFixed(2),
@@ -32,31 +64,6 @@ export async function getQuote(symbol: string) {
       volume: Math.floor(Math.random() * 10000000).toString(),
       lastTradingDay: new Date().toISOString().split('T')[0]
     };
-  }
-
-  try {
-    const res = await fetch(
-      `${ALPHA_VANTAGE_URL}?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`,
-      { next: { revalidate: 60 } } // Cache for 60 seconds
-    );
-    const data = await res.json();
-    const quote = data["Global Quote"];
-    
-    if (!quote || Object.keys(quote).length === 0) {
-      throw new Error("Invalid symbol or API rate limit exceeded");
-    }
-
-    return {
-      symbol: quote["01. symbol"],
-      price: parseFloat(quote["05. price"]).toFixed(2),
-      change: parseFloat(quote["09. change"]).toFixed(2),
-      changePercent: quote["10. change percent"],
-      volume: quote["06. volume"],
-      lastTradingDay: quote["07. latest trading day"]
-    };
-  } catch (error) {
-    console.error("[Market API] Error fetching quote:", error);
-    throw error;
   }
 }
 
