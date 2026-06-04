@@ -61,7 +61,6 @@ export function ChartUploader({ onAnalyze, isAnalyzing }: ChartUploaderProps) {
     accept: {
       "image/jpeg": [".jpg", ".jpeg"],
       "image/png": [".png"],
-      "image/webp": [".webp"],
     },
     maxFiles: 1,
   });
@@ -101,7 +100,7 @@ export function ChartUploader({ onAnalyze, isAnalyzing }: ChartUploaderProps) {
             </div>
             <h3 className="text-lg font-medium text-white mb-1">Upload Chart Image</h3>
             <p className="text-sm text-foreground-secondary text-center max-w-sm">
-              Drag and drop your trading chart here, or click to browse. Max size 500KB (will auto-compress).
+              Drag and drop your trading chart here, or click to browse. Max size 1MB (will auto-compress).
             </p>
             {error && (
               <div className="mt-4 flex items-center gap-2 text-negative text-sm bg-negative/10 px-3 py-1.5 rounded-md">
