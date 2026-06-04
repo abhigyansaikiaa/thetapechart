@@ -26,8 +26,8 @@ const SECURITY_PATTERNS = [
 
 export async function POST(req: Request) {
   try {
-    const { userId } = auth();
-    const cookieStore = cookies();
+    const { userId } = await auth();
+    const cookieStore = await cookies();
     
     let { imageBase64, filename, prompt } = await req.json();
 
