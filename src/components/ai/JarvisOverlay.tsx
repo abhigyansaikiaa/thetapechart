@@ -9,6 +9,7 @@ export function JarvisOverlay() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [response, setResponse] = useState("");
+  const [chatHistory, setChatHistory] = useState<{role: string, content: string}[]>([]);
   
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
@@ -67,13 +68,16 @@ export function JarvisOverlay() {
       isManuallyStoppedRef.current = false;
       if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
       
-      // Send to existing Gemini Mentor route
+      // Send to existing Gemini Mentor route, passing along history
+      const messagesToSend = [
+        ...chatHistory,
+        { role: "user", content: `You are Jarvis, the Tape Chart bot. Keep your response to a STRICT MAXIMUM of 1 or 2 short sentences. Be extremely brief, friendly, sound like a natural human, avoid AI buzzwords, and only answer questions related to trading, finance, and stock markets. If the user asks something unrelated, playfully remind them you only talk about trading. The user says: ${query}` }
+      ];
+
       const res = await fetch("/api/mentor/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: `You are Jarvis, the Tape Chart bot. Keep your response to a STRICT MAXIMUM of 1 or 2 short sentences. Be extremely brief, friendly, sound like a natural human, avoid AI buzzwords, and only answer questions related to trading, finance, and stock markets. If the user asks something unrelated, playfully remind them you only talk about trading. The user says: ${query}` }]
-        })
+        body: JSON.stringify({ messages: messagesToSend })
       });
 
       const data = await res.json();
@@ -82,6 +86,7 @@ export function JarvisOverlay() {
       if (isManuallyStoppedRef.current) return; // Abort if stopped while fetching
       
       setResponse(textResponse);
+      setChatHistory(prev => [...prev, { role: "user", content: query }, { role: "assistant", content: textResponse }]);
 
       // Speak response
       if (synthRef.current) {
