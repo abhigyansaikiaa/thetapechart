@@ -160,13 +160,11 @@ export async function POST(req: NextRequest) {
     const finalAnalysis = {
       id: crypto.randomUUID(),
       userId,
-      imageUrl: "url_to_uploaded_image_in_supabase", // Would upload to Supabase Storage first
       createdAt: new Date(),
       aiResponse: parsedData,
     };
 
-    // Save to Supabase (Pseudo-code)
-    // await supabase.from('chart_analyses').insert(finalAnalysis);
+    // Images are strictly processed in-memory and discarded. No database storage.
 
     return NextResponse.json({ analysis: finalAnalysis });
 

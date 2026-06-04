@@ -115,6 +115,10 @@ export function ChartUploader({ onAnalyze, isAnalyzing }: ChartUploaderProps) {
                 Compressing image...
               </div>
             )}
+            
+            <p className="mt-6 text-[11px] text-foreground-muted/80 text-center max-w-sm px-4">
+              <span className="font-semibold text-accent/80">Privacy & Disclaimer:</span> Uploaded charts are processed strictly in-memory and are <span className="font-bold underline text-white">never</span> stored on our servers. AI-generated technical analysis is for informational purposes only and is prone to errors. Not financial advice.
+            </p>
             </div>
           </motion.div>
         ) : (

@@ -42,8 +42,8 @@ export default function PrivacyPage() {
           </p>
           <ul className="list-disc pl-5 mt-4 text-foreground-secondary space-y-2">
             <li>Images are transmitted via encrypted TLS endpoints to Anthropic's Claude API.</li>
-            <li>Images are processed statelessly for the purpose of generating the analysis prompt.</li>
-            <li>We do not retain raw image files on The Tape Chart servers post-analysis unless you explicitly save the analysis to your Trade Journal.</li>
+            <li>Images are processed <strong>strictly in-memory</strong> for the purpose of generating the analysis prompt.</li>
+            <li><strong>Zero Retention Policy:</strong> We NEVER retain, save, or store raw image files on The Tape Chart servers or databases under any circumstances. Once the API returns an analysis, the image data is completely discarded from memory.</li>
           </ul>
         </section>
 

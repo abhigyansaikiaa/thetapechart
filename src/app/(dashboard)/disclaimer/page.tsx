@@ -56,6 +56,7 @@ export default function DisclaimerPage() {
               <li>The AI can and will hallucinate data.</li>
               <li>Past performance of algorithmic models is absolutely no guarantee of future results.</li>
               <li>Real-time market conditions (black swan events, macro news) can invalidate quantitative setups instantly.</li>
+              <li><strong>Zero Image Retention:</strong> Uploaded charts and screenshots are processed in-memory and immediately destroyed. They are never saved to our servers.</li>
               <li>The Tape Chart assumes no responsibility for algorithmic calculation errors, data feed latency, or API downtime.</li>
             </ul>
           </section>
