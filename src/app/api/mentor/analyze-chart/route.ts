@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   try {
     const { imageBase64, filename } = await req.json();
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey || apiKey.includes('placeholder')) {
       // Mock heuristic: attempt to detect if it's a chart locally since we don't have Vision AI
@@ -37,20 +37,22 @@ export async function POST(req: Request) {
       });
     }
 
-    // Prepare Base64 Image string for OpenAI
+    // Prepare Base64 Image string for OpenRouter
     let base64Data = imageBase64;
     if (!imageBase64.startsWith("data:image")) {
        base64Data = `data:image/jpeg;base64,${imageBase64}`;
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "HTTP-Referer": "http://localhost:3000",
+        "X-Title": "Tape Chart Quant"
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "google/gemma-4-31b-it:free",
         messages: [
           {
             role: "user",
@@ -75,8 +77,8 @@ export async function POST(req: Request) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[OpenAI Vision API Error]:", errorText);
-      throw new Error(`OpenAI API returned status ${response.status}`);
+      console.error("[OpenRouter Vision API Error]:", errorText);
+      throw new Error(`OpenRouter API returned status ${response.status}`);
     }
 
     const data = await response.json();
