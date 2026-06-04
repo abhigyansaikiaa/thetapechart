@@ -86,6 +86,10 @@ export default function RootLayout({
             footerActionText: "text-gray-400",
             identityPreviewText: "text-gray-300",
             formButtonPrimary: "text-white",
+            userPreviewMainIdentifier: "text-white font-semibold",
+            userPreviewSecondaryIdentifier: "text-gray-400",
+            userButtonPopoverActionButtonText: "text-gray-300",
+            userButtonPopoverActionButtonIcon: "text-gray-400",
           }
         }}
       >
