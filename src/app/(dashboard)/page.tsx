@@ -13,7 +13,7 @@ import { SectorHeatmap } from "@/components/trading/SectorHeatmap";
 import { FearGreedGauge } from "@/components/trading/FearGreedGauge";
 import { FiiDiiFlow } from "@/components/trading/FiiDiiFlow";
 import { EventsTimeline } from "@/components/trading/EventsTimeline";
-import { QuickAccessGrid } from "@/components/trading/QuickAccessGrid";
+
 
 // Data Layer
 import {
@@ -28,7 +28,6 @@ import {
   EVENTS,
   GAINERS,
   LOSERS,
-  QUICK_ACCESS,
   TradeSuggestionResponse
 } from "@/lib/dashboardData";
 import Link from "next/link";
@@ -280,9 +279,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Quick Access */}
-          <QuickAccessGrid items={QUICK_ACCESS} />
-          
         </div>
       </div>
     </PageWrapper>

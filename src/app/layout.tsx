@@ -29,14 +29,14 @@ export const metadata: Metadata = {
     description: APP_DESCRIPTION,
     type: "website",
     locale: "en_IN",
-    url: "https://alphaedge.example.com",
+    url: "https://thetapechart.vercel.app",
     siteName: APP_NAME,
   },
   twitter: {
     card: "summary_large_image",
     title: APP_NAME,
     description: APP_DESCRIPTION,
-    creator: "@alphaedge",
+
   },
 };
 

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ArrowRight, MessageCircle, Globe, Link as LinkIcon, Mail } from "lucide-react";
 import { NewsletterForm } from "./NewsletterForm";
 
 export function Footer() {
@@ -10,10 +9,10 @@ export function Footer() {
       <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-positive/5 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="container mx-auto px-6 lg:px-12 pt-20 pb-10 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 border-b border-border/40 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 border-b border-border/40 pb-16">
           
           {/* Brand Column */}
-          <div className="lg:col-span-2 flex flex-col gap-6">
+          <div className="lg:col-span-1 flex flex-col gap-6">
             <Link href="/" className="flex items-center gap-3 group w-fit">
               <div className="flex items-end justify-center gap-1 mr-2 h-8">
                 <div className="w-2 h-4 bg-foreground-muted rounded-t-sm"></div>
@@ -31,40 +30,30 @@ export function Footer() {
             </Link>
             
             <p className="text-sm text-foreground-secondary leading-relaxed max-w-sm">
-              The ultimate institutional-grade quantitative trading terminal. 
-              Powered by advanced machine learning models and real-time market data to give you the ultimate edge.
+              AI-powered quantitative trading intelligence platform. 
+              Real-time market analysis and smart money insights.
             </p>
-
-            <div className="flex items-center gap-4 mt-2">
-              <a href="#" className="w-10 h-10 rounded-full bg-surface-elevated border border-border flex items-center justify-center text-foreground-muted hover:text-white hover:border-accent/50 hover:bg-accent/10 transition-all duration-300">
-                <MessageCircle size={18} />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-surface-elevated border border-border flex items-center justify-center text-foreground-muted hover:text-white hover:border-accent/50 hover:bg-accent/10 transition-all duration-300">
-                <Globe size={18} />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-surface-elevated border border-border flex items-center justify-center text-foreground-muted hover:text-white hover:border-accent/50 hover:bg-accent/10 transition-all duration-300">
-                <LinkIcon size={18} />
-              </a>
-            </div>
           </div>
 
-          {/* Navigation Links */}
+          {/* Platform Links */}
           <div className="flex flex-col gap-4">
             <h4 className="text-white font-bold tracking-wide uppercase text-xs mb-2">Platform</h4>
-            <Link href="/" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">Terminal</Link>
-            <Link href="/chart" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">Advanced Charting</Link>
-            <Link href="/bot" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">AI Auto-Trading</Link>
-            <Link href="/journal" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">Trade Journal</Link>
+            <Link href="/" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">Dashboard</Link>
+            <Link href="/analyze" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">AI Chart Analyze</Link>
+            <Link href="/news" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">News & Sentiment</Link>
+            <Link href="/backtester" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">Algo Backtester</Link>
           </div>
 
+          {/* Intelligence Links */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-white font-bold tracking-wide uppercase text-xs mb-2">Intelligence</h4>
-            <Link href="/screener" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">Stock Screener</Link>
-            <Link href="/options" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">Options Chain</Link>
-            <Link href="/macro" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">Macro Data</Link>
-            <Link href="/mentor" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">AI Mentor</Link>
+            <h4 className="text-white font-bold tracking-wide uppercase text-xs mb-2">Tools</h4>
+            <Link href="/darkpool" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">Dark Pool Flow</Link>
+            <Link href="/psychology" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">Trading Psychology</Link>
+            <Link href="/learn" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">Learning Library</Link>
+            <Link href="/tools" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">Calculators</Link>
           </div>
 
+          {/* Legal Links */}
           <div className="flex flex-col gap-4">
             <h4 className="text-white font-bold tracking-wide uppercase text-xs mb-2">Legal & Support</h4>
             <Link href="/about" className="text-sm text-foreground-muted hover:text-accent transition-colors w-fit">About Us</Link>

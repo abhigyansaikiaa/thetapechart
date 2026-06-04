@@ -6,9 +6,7 @@ import {
   LayoutDashboard, 
   Target, 
   LineChart, 
-  BookOpen, 
   Eye, 
-  PieChart, 
   Calculator, 
   Newspaper,
   GraduationCap,
@@ -16,12 +14,8 @@ import {
   Zap,
   ChevronLeft,
   ChevronRight,
-  MessageSquare,
-  Bot,
-  Monitor,
   Activity,
   BrainCircuit,
-  CalendarDays
 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -31,27 +25,12 @@ const sidebarGroups = [
     title: "Trading",
     items: [
       { name: "Dashboard", href: "/", icon: LayoutDashboard },
-      { name: "Stock Terminal", href: "/terminal", icon: Monitor },
-      { name: "Advanced Charting", href: "/chart", icon: LineChart },
-      { name: "AI Auto-Trading", href: "/bot", icon: Bot },
-      { name: "Investment Planner", href: "/planner", icon: Target },
-      { name: "Trade Journal", href: "/journal", icon: BookOpen },
-      { name: "Watchlist", href: "/watchlist", icon: Eye },
-    ]
-  },
-  {
-    title: "Research",
-    items: [
-      { name: "Stock Screener", href: "/screener", icon: LineChart },
-      { name: "Options Chain", href: "/options", icon: PieChart },
-      { name: "Mutual Funds", href: "/mf", icon: PieChart },
-      { name: "Macro Data", href: "/macro", icon: LineChart },
+      { name: "AI Chart Analyze", href: "/analyze", icon: Zap },
     ]
   },
   {
     title: "Intelligence",
     items: [
-      { name: "Economic Calendar", href: "/calendar", icon: CalendarDays },
       { name: "News & Sentiment", href: "/news", icon: Newspaper },
       { name: "Learning Library", href: "/learn", icon: GraduationCap },
       { name: "Calculators", href: "/tools", icon: Calculator },

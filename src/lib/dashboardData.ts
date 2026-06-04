@@ -65,12 +65,7 @@ export interface TradeSuggestionResponse {
   avoid?: string;
 }
 
-export interface QuickAccessItem {
-  href: string;
-  emoji: string;
-  label: string;
-  desc: string;
-}
+
 
 // ── Index Symbols ──────────────────────────────────
 
@@ -224,35 +219,24 @@ export const MOCK_SUGGESTIONS: TradeSuggestionResponse = {
   avoid: "Avoid aggressive positioning in metals and PSU banking stocks ahead of RBI minutes. ONGC, COALINDIA showing distribution patterns on higher timeframes."
 };
 
-// ── Quick Access ──────────────────────────────────
 
-export const QUICK_ACCESS: QuickAccessItem[] = [
-  { href: "/journal", emoji: "📒", label: "Trade Journal", desc: "Log & track trades" },
-  { href: "/screener", emoji: "🔍", label: "Screener", desc: "Filter stocks" },
-  { href: "/options", emoji: "⚡", label: "Options Chain", desc: "F&O analysis" },
-  { href: "/watchlist", emoji: "⭐", label: "Watchlist", desc: "Track stocks" },
-  { href: "/macro", emoji: "🌐", label: "Macro Data", desc: "Economy" },
-  { href: "/learn", emoji: "🎓", label: "Learn SMC/ICT", desc: "Education" },
-];
 
-// ── Fear & Greed Helpers ──────────────────────────
+// ── India VIX Helpers ─────────────────────────────
 
-export const FEAR_GREED_VALUE = 62;
+export const FEAR_GREED_VALUE = 14.2;
 
 export function getFearColor(v: number): string {
-  if (v <= 25) return "#EF4444";
-  if (v <= 45) return "#F59E0B";
-  if (v <= 55) return "#A1A1AA";
-  if (v <= 75) return "#10B981";
-  return "#3B82F6";
+  if (v <= 12) return "#10B981";   // Low VIX = calm = green
+  if (v <= 18) return "#F59E0B";   // Moderate = amber
+  if (v <= 25) return "#EF4444";   // High = red
+  return "#DC2626";                // Extreme = deep red
 }
 
 export function getFearLabel(v: number): string {
-  if (v <= 25) return "Extreme Fear";
-  if (v <= 45) return "Fear";
-  if (v <= 55) return "Neutral";
-  if (v <= 75) return "Greed";
-  return "Extreme Greed";
+  if (v <= 12) return "Low Volatility";
+  if (v <= 18) return "Moderate";
+  if (v <= 25) return "Elevated";
+  return "Extreme Volatility";
 }
 
 // ── Sparkline Generator ───────────────────────────

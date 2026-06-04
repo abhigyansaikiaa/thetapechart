@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Home, LineChart, Target, BookOpen, Menu } from "lucide-react";
+import { Home, Zap, Newspaper, Activity, LayoutGrid } from "lucide-react";
 
 const mobileItems = [
   { name: "Home", href: "/", icon: Home },
-  { name: "Terminal", href: "/terminal", icon: LineChart },
-  { name: "Screener", href: "/screener", icon: Target },
-  { name: "Journal", href: "/journal", icon: BookOpen },
-  { name: "Mentor", href: "/mentor", icon: Menu },
+  { name: "Analyze", href: "/analyze", icon: Zap },
+  { name: "News", href: "/news", icon: Newspaper },
+  { name: "Backtest", href: "/backtester", icon: Activity },
+  { name: "More", href: "/tools", icon: LayoutGrid },
 ];
 
 export function MobileTabBar() {
