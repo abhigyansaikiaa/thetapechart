@@ -29,31 +29,12 @@ export function OrderPanel({ symbol, assetType }: OrderPanelProps) {
       return;
     }
     setErrorMsg("");
-    
     setIsEvaluating(true);
+    
     try {
-      const res = await fetch("/api/mentor/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: `You are Jarvis, a highly advanced quantitative trading AI partner. I am about to execute a ${direction} paper trade on ${symbol} with Entry: ${entry}, Stop Loss: ${sl}, and Take Profit: ${tp}. Quickly analyze the Risk/Reward ratio. If it's worse than 1:1, or if it violates basic risk management, strictly WARN ME and tell me not to take it. If it's a good RR, encourage me. Keep it under 2 sentences and sound like Jarvis from Iron Man.` }]
-        })
-      });
-      const data = await res.json();
-      const aiResponse = data.content?.[0]?.text || data.response || "Order submitted.";
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 600));
 
-      // Speak Jarvis's advice
-      if (typeof window !== 'undefined' && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(aiResponse);
-        utterance.pitch = 0.9; utterance.rate = 1.05;
-        const voices = window.speechSynthesis.getVoices();
-        const jarvisVoice = voices.find(v => v.name.includes("Google UK English Male") || v.lang === "en-GB");
-        if (jarvisVoice) utterance.voice = jarvisVoice;
-        window.speechSynthesis.speak(utterance);
-      }
-
-      // We still open the trade, but Jarvis will verbally warn them if it's bad.
       openTrade({
         symbol,
         direction,

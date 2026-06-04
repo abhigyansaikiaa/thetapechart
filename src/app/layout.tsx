@@ -3,7 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
-import { JarvisOverlay } from "@/components/ai/JarvisOverlay";
+
 import "./globals.css";
 
 const inter = Inter({
@@ -59,7 +59,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans relative">
         <div className="grid-background" />
         {children}
-        <JarvisOverlay />
+
       </body>
     </html>
   );

@@ -18,7 +18,9 @@ import {
   ChevronRight,
   MessageSquare,
   Bot,
-  Monitor
+  Monitor,
+  Activity,
+  BrainCircuit
 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -52,6 +54,14 @@ const sidebarGroups = [
       { name: "News & Sentiment", href: "/news", icon: Newspaper },
       { name: "Learning Library", href: "/learn", icon: GraduationCap },
       { name: "Calculators", href: "/tools", icon: Calculator },
+    ]
+  },
+  {
+    title: "Pro Tools",
+    items: [
+      { name: "Dark Pool Flow", href: "/darkpool", icon: Eye },
+      { name: "Algo Backtester", href: "/backtester", icon: Activity },
+      { name: "Trading Psychology", href: "/psychology", icon: BrainCircuit },
     ]
   }
 ];
